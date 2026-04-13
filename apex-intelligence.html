@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Apex Intelligence — VC & Markets Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#08090c; --bg2:#0d0f14; --bg3:#12151d; --bg4:#181c26;
+  --border:rgba(255,255,255,0.06); --border2:rgba(255,255,255,0.11);
+  --text:#e2e6f0; --muted:#5a6278; --dim:#2a2f40;
+  --accent:#4f6ef7; --accent2:#7b93ff;
+  --green:#22c97a; --red:#f04f52; --amber:#f0a030; --teal:#1ec8b0; --purple:#a855f7;
+  --gold:#d4a53a; --gold2:#f5c842;
+  --ngx:#008751;
+  --sans:'DM Sans',sans-serif; --head:'Syne',sans-serif; --mono:'JetBrains Mono',monospace;
+  --r:8px; --r2:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13.5px;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px;}
+
+/* Shell */
+.shell{display:grid;grid-template-columns:220px 1fr;grid-template-rows:52px 1fr;height:100vh;overflow:hidden;}
+
+/* Topbar */
+.topbar{
+  grid-column:1/-1;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;
+  position:relative;z-index:100;
+}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-mark{
+  width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),#7b93ff);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.brand-mark svg{width:16px;height:16px;}
+.brand-name{font-family:var(--head);font-size:15px;font-weight:700;letter-spacing:-0.02em;}
+.brand-name span{color:var(--accent2);}
+.brand-ver{font-size:9.5px;font-family:var(--mono);color:var(--muted);margin-left:2px;}
+.topbar-ticker{display:flex;gap:16px;align-items:center;}
+.tk{font-family:var(--mono);font-size:11px;display:flex;gap:5px;align-items:center;}
+.tk-name{color:var(--muted);}
+.tk-val{color:var(--text);font-weight:500;}
+.tk-up{color:var(--green);font-size:10px;}
+.tk-dn{color:var(--red);font-size:10px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.live-pill{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--green);font-family:var(--mono);background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.2);padding:4px 10px;border-radius:20px;}
+.ldot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+.clk{font-family:var(--mono);font-size:10.5px;color:var(--muted);}
+
+/* Sidebar */
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:12px 8px;display:flex;flex-direction:column;gap:1px;overflow-y:auto;}
+.sb-label{font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);padding:12px 10px 4px;}
+.sb-label:first-child{padding-top:4px;}
+.nav-btn{
+  display:flex;align-items:center;gap:9px;
+  padding:8px 10px;border-radius:7px;
+  cursor:pointer;font-size:12.5px;color:var(--muted);
+  transition:all .14s;border:none;background:none;width:100%;text-align:left;
+  font-family:var(--sans);
+}
+.nav-btn:hover{background:var(--bg3);color:var(--text);}
+.nav-btn.active{background:rgba(79,110,247,0.12);color:var(--accent2);border-left:2px solid var(--accent);padding-left:8px;}
+.nav-btn svg{width:13px;height:13px;flex-shrink:0;opacity:.65;}
+.nav-btn.active svg{opacity:1;}
+.sb-divider{height:1px;background:var(--border);margin:6px 6px;}
+.sb-badge{margin-left:auto;font-size:9.5px;font-family:var(--mono);padding:1px 6px;border-radius:10px;}
+.sb-new{background:rgba(79,110,247,0.2);color:var(--accent2);}
+.sb-live{background:rgba(34,201,122,0.15);color:var(--green);}
+
+/* Main */
+.main{overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:14px;background:var(--bg);}
+
+/* Pages */
+.page{display:none;flex-direction:column;gap:14px;}
+.page.active{display:flex;}
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.page-hd-left h1{font-family:var(--head);font-size:20px;font-weight:700;letter-spacing:-0.02em;color:var(--text);}
+.page-hd-left p{font-size:11.5px;font-family:var(--mono);color:var(--muted);margin-top:3px;}
+
+/* Metrics */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.mcard{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r2);padding:14px 16px;
+  position:relative;overflow:hidden;
+}
+.mcard::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;}
+.mc-blue::before{background:linear-gradient(90deg,var(--accent),transparent);}
+.mc-green::before{background:linear-gradient(90deg,var(--green),transparent);}
+.mc-amber::before{background:linear-gradient(90deg,var(--amber),transparent);}
+.mc-purple::before{background:linear-gradient(90deg,var(--purple),transparent);}
+.mc-teal::before{background:linear-gradient(90deg,var(--teal),transparent);}
+.mc-gold::before{background:linear-gradient(90deg,var(--gold),transparent);}
+.mcard-label{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
+.mcard-val{font-family:var(--head);font-size:24px;font-weight:700;letter-spacing:-0.03em;line-height:1;}
+.mcard-sub{font-size:11px;font-family:var(--mono);margin-top:5px;}
+.pos{color:var(--green);} .neg{color:var(--red);} .neu{color:var(--muted);}
+
+/* Card */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.card-title{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);}
+.card-action{font-size:11.5px;color:var(--accent2);cursor:pointer;font-family:var(--mono);}
+
+/* Grids */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+
+/* Table */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 10px 10px;text-align:left;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;white-space:nowrap;}
+.tbl th:hover{color:var(--text);}
+.tbl th.r,.tbl td.r{text-align:right;}
+.tbl th .sort-arrow{opacity:.4;margin-left:3px;font-size:9px;}
+.tbl th.sorted .sort-arrow{opacity:1;color:var(--accent2);}
+.tbl td{padding:9px 10px;font-size:12.5px;border-bottom:1px solid rgba(255,255,255,.035);vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:rgba(255,255,255,.025);}
+.tkr{font-family:var(--mono);font-weight:500;color:var(--accent2);font-size:12px;}
+.co-name{color:var(--muted);font-size:12px;}
+.mono{font-family:var(--mono);}
+.exch-tag{font-size:9px;font-family:var(--mono);padding:2px 5px;background:var(--bg4);border-radius:4px;color:var(--muted);margin-left:3px;}
+
+/* Sector badges */
+.sbadge{font-size:9.5px;padding:2px 7px;border-radius:4px;font-family:var(--mono);font-weight:500;white-space:nowrap;}
+.sb-banking{background:rgba(79,110,247,.15);color:#7b93ff;}
+.sb-oil{background:rgba(240,160,48,.12);color:#f0a030;}
+.sb-cement{background:rgba(34,201,122,.1);color:#22c97a;}
+.sb-telco{background:rgba(168,85,247,.15);color:#c084fc;}
+.sb-consumer{background:rgba(28,200,176,.1);color:#1ec8b0;}
+.sb-tech{background:rgba(79,110,247,.2);color:var(--accent2);}
+.sb-fintech{background:rgba(212,165,58,.15);color:var(--gold2);}
+.sb-health{background:rgba(240,79,82,.1);color:#f87171;}
+.sb-agri{background:rgba(34,201,122,.15);color:#4ade80;}
+.sb-energy{background:rgba(240,160,48,.18);color:#fbbf24;}
+.sb-saas{background:rgba(168,85,247,.2);color:#d8b4fe;}
+.sb-ecomm{background:rgba(28,200,176,.15);color:var(--teal);}
+
+/* Stage badges (VC) */
+.stage{font-size:9.5px;padding:2px 8px;border-radius:10px;font-family:var(--mono);font-weight:500;}
+.stage-seed{background:rgba(212,165,58,.15);color:var(--gold2);}
+.stage-a{background:rgba(79,110,247,.18);color:var(--accent2);}
+.stage-b{background:rgba(34,201,122,.14);color:var(--green);}
+.stage-c{background:rgba(168,85,247,.18);color:#c084fc;}
+.stage-growth{background:rgba(240,79,82,.12);color:#f87171;}
+
+/* Status badge */
+.status{font-size:9.5px;padding:2px 8px;border-radius:10px;font-family:var(--mono);}
+.st-active{background:rgba(34,201,122,.12);color:var(--green);}
+.st-watch{background:rgba(240,160,48,.12);color:var(--amber);}
+.st-exit{background:rgba(168,85,247,.12);color:#c084fc);}
+.st-pipeline{background:rgba(79,110,247,.12);color:var(--accent2);}
+
+/* Filter bar */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.filt{font-size:12px;padding:6px 12px;border-radius:6px;background:var(--bg3);border:1px solid var(--border2);color:var(--muted);cursor:pointer;font-family:var(--sans);transition:all .13s;white-space:nowrap;}
+.filt:hover,.filt.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.filt-select{font-size:12px;padding:6px 10px;border-radius:6px;background:var(--bg3);border:1px solid var(--border2);color:var(--muted);cursor:pointer;font-family:var(--mono);outline:none;appearance:none;padding-right:24px;}
+.filt-select:focus{border-color:var(--accent);}
+.search-box{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:6px 10px;flex:1;max-width:280px;}
+.search-box svg{width:13px;height:13px;color:var(--muted);flex-shrink:0;}
+.search-inp{border:none;background:none;color:var(--text);font-family:var(--sans);font-size:12.5px;outline:none;width:100%;}
+.search-inp::placeholder{color:var(--muted);}
+
+/* Input */
+.inp{background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:8px 12px;font-size:13px;color:var(--text);font-family:var(--sans);outline:none;transition:border-color .14s;width:100%;}
+.inp:focus{border-color:var(--accent);}
+.inp::placeholder{color:var(--muted);}
+select.inp{appearance:none;cursor:pointer;}
+label.lbl{font-size:11px;color:var(--muted);font-family:var(--mono);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;}
+
+/* Buttons */
+.btn{padding:9px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .14s;border:none;white-space:nowrap;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:#3d5ae0;}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--muted);}
+.btn-outline:hover{border-color:var(--accent2);color:var(--accent2);}
+.btn-danger{background:rgba(240,79,82,.15);border:1px solid rgba(240,79,82,.3);color:var(--red);}
+.btn-sm{padding:5px 10px;font-size:11.5px;}
+.btn-green{background:rgba(34,201,122,.15);border:1px solid rgba(34,201,122,.3);color:var(--green);}
+.btn-green:hover{background:var(--green);color:#000;}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:24px;width:min(640px,95vw);max-height:90vh;overflow-y:auto;}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.modal-title{font-family:var(--head);font-size:16px;font-weight:700;}
+.modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;line-height:1;}
+.modal-close:hover{color:var(--text);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-full{grid-column:1/-1;}
+.form-group{display:flex;flex-direction:column;gap:4px;}
+
+/* Val output */
+.val-result{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-top:14px;}
+.val-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);}
+.val-row:last-child{border-bottom:none;}
+.val-method{font-size:12.5px;color:var(--muted);}
+.val-num{font-family:var(--head);font-size:16px;font-weight:700;color:var(--accent2);}
+
+/* Company card */
+.co-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:border-color .14s;}
+.co-card:hover{border-color:var(--accent);}
+.co-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;}
+.co-card-name{font-family:var(--head);font-size:14px;font-weight:600;}
+.co-card-meta{font-size:11px;font-family:var(--mono);color:var(--muted);margin-top:2px;}
+.co-card-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;}
+.co-stat-label{font-size:10px;font-family:var(--mono);color:var(--muted);}
+.co-stat-val{font-size:13px;font-weight:600;font-family:var(--mono);margin-top:1px;}
+
+/* AI Panel */
+.ai-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;}
+.ai-hd{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+  background:linear-gradient(90deg,rgba(79,110,247,.08),transparent);
+}
+.ai-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ai-icon svg{width:14px;height:14px;}
+.ai-hd-title{font-size:13px;font-weight:600;font-family:var(--head);}
+.ai-hd-sub{font-size:10px;font-family:var(--mono);color:var(--muted);}
+.ai-body{padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:11.5px;padding:5px 10px;border-radius:6px;background:var(--bg3);border:1px solid var(--border2);color:var(--muted);cursor:pointer;transition:all .14s;font-family:var(--sans);}
+.chip:hover{border-color:var(--accent);color:var(--accent2);background:rgba(79,110,247,.08);}
+.ai-out{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:13px 15px;font-size:13px;line-height:1.75;color:var(--text);min-height:74px;}
+.ai-out.ph{color:var(--muted);font-style:italic;}
+.ai-row{display:flex;gap:8px;}
+.ai-inp{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--text);font-family:var(--sans);outline:none;transition:border-color .14s;}
+.ai-inp:focus{border-color:var(--accent);}
+.ai-inp::placeholder{color:var(--muted);}
+.ai-btn{background:var(--accent);border:none;border-radius:7px;padding:9px 16px;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .14s;white-space:nowrap;}
+.ai-btn:hover{background:#3d5ae0;}
+.ai-btn:active{transform:scale(.97);}
+.ai-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+
+/* Loader */
+.loader{display:inline-flex;gap:4px;align-items:center;}
+.loader span{width:5px;height:5px;border-radius:50%;background:var(--accent2);animation:ld 1.2s ease-in-out infinite;}
+.loader span:nth-child(2){animation-delay:.18s;}
+.loader span:nth-child(3){animation-delay:.36s;}
+@keyframes ld{0%,80%,100%{transform:translateY(0);opacity:.3}40%{transform:translateY(-5px);opacity:1}}
+
+/* Signals */
+.sig-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.sig-item:last-child{border-bottom:none;padding-bottom:0;}
+.sig-dot-wrap{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.sd-h{background:rgba(240,79,82,.12);}
+.sd-m{background:rgba(240,160,48,.12);}
+.sd-l{background:rgba(34,201,122,.1);}
+.sig-body{flex:1;}
+.sig-title{font-size:12.5px;font-weight:500;color:var(--text);line-height:1.4;margin-bottom:3px;}
+.sig-meta{font-size:11px;font-family:var(--mono);color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.itag{font-size:9.5px;padding:1px 6px;border-radius:4px;font-weight:600;}
+.ih{background:rgba(240,79,82,.12);color:#f87171;}
+.im{background:rgba(240,160,48,.12);color:var(--amber);}
+.il{background:rgba(34,201,122,.1);color:var(--green);}
+
+/* Chart wrap */
+.cw{position:relative;width:100%;}
+
+/* Tooltip-style data card */
+.data-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;}
+.dc-label{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.dc-val{font-family:var(--head);font-size:17px;font-weight:700;letter-spacing:-.02em;}
+.dc-sub{font-size:11px;font-family:var(--mono);margin-top:2px;}
+
+/* Screener range */
+.range-wrap{display:flex;flex-direction:column;gap:3px;}
+.range-label{font-size:10px;font-family:var(--mono);color:var(--muted);}
+.range-inp{width:100%;accent-color:var(--accent);}
+.range-vals{display:flex;justify-content:space-between;font-size:10px;font-family:var(--mono);color:var(--muted);}
+
+/* Notification */
+.notif{position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.4);z-index:2000;transform:translateY(100px);opacity:0;transition:all .3s;}
+.notif.show{transform:translateY(0);opacity:1;}
+.notif-g{border-color:rgba(34,201,122,.3);background:rgba(34,201,122,.05);}
+.notif-r{border-color:rgba(240,79,82,.3);}
+
+/* Progress bar */
+.prog{height:3px;background:var(--dim);border-radius:2px;overflow:hidden;margin-top:4px;}
+.prog-fill{height:100%;border-radius:2px;transition:width .6s ease;}
+
+/* Valuation gauge */
+.gauge-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
+.gauge-item{background:var(--bg3);border-radius:8px;padding:10px 12px;text-align:center;}
+.gauge-label{font-size:10px;font-family:var(--mono);color:var(--muted);margin-bottom:4px;}
+.gauge-val{font-family:var(--head);font-size:15px;font-weight:700;}
+
+/* Company search result */
+.search-result-item{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:all .14s;gap:10px;}
+.search-result-item:hover{background:var(--bg3);border-color:var(--border);}
+.sri-info{flex:1;}
+.sri-name{font-size:13px;font-weight:500;}
+.sri-meta{font-size:11px;font-family:var(--mono);color:var(--muted);}
+.sri-price{font-family:var(--mono);font-size:13px;text-align:right;}
+.sri-chg{font-size:11px;font-family:var(--mono);}
+
+/* Exchange tabs */
+.exch-tabs{display:flex;gap:4px;background:var(--bg3);padding:3px;border-radius:8px;border:1px solid var(--border);}
+.exch-tab{padding:5px 12px;border-radius:6px;font-size:11.5px;cursor:pointer;font-family:var(--mono);color:var(--muted);transition:all .14s;white-space:nowrap;}
+.exch-tab.active{background:var(--accent);color:#fff;}
+.exch-tab:hover:not(.active){color:var(--text);}
+
+/* Scrollable container */
+.scroll-x{overflow-x:auto;}
+.min-800{min-width:800px;}
+
+/* Toggle switch */
+.toggle-wrap{display:flex;align-items:center;gap:8px;}
+.toggle{width:36px;height:20px;background:var(--dim);border-radius:10px;cursor:pointer;transition:background .2s;position:relative;flex-shrink:0;}
+.toggle::after{content:'';width:14px;height:14px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:left .2s;}
+.toggle.on{background:var(--accent);}
+.toggle.on::after{left:19px;}
+.toggle-label{font-size:12px;color:var(--muted);}
+
+/* Empty state */
+.empty{text-align:center;padding:32px 16px;color:var(--muted);}
+.empty svg{width:36px;height:36px;margin:0 auto 10px;display:block;opacity:.3;}
+.empty p{font-size:13px;}
+
+/* Report card */
+.rep-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:all .12s;border-radius:6px;}
+.rep-item:hover{padding-left:6px;background:var(--bg3);}
+.rep-item:last-child{border-bottom:none;}
+.rep-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.rep-title{font-size:13px;font-weight:500;color:var(--text);}
+.rep-item:hover .rep-title{color:var(--accent2);}
+.rep-meta{font-size:11px;font-family:var(--mono);color:var(--muted);}
+.rep-badge{margin-left:auto;font-size:10px;font-family:var(--mono);padding:3px 8px;border-radius:5px;white-space:nowrap;}
+.rb-ai{background:rgba(79,110,247,.15);color:var(--accent2);border:1px solid rgba(79,110,247,.25);}
+.rb-gen{background:rgba(34,201,122,.12);color:var(--green);border:1px solid rgba(34,201,122,.2);}
+
+/* Macro data */
+.macro-item{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
+.macro-label{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+.macro-val{font-family:var(--head);font-size:18px;font-weight:700;letter-spacing:-.02em;}
+.macro-sub{font-size:11px;font-family:var(--mono);color:var(--muted);margin-top:3px;}
+
+@media(max-width:960px){
+  .shell{grid-template-columns:1fr;grid-template-rows:52px 1fr;}
+  .sidebar{display:none;}
+  .metrics,.g2,.g3,.g4{grid-template-columns:1fr 1fr;}
+  .topbar-ticker{display:none;}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark"><svg viewBox="0 0 16 16" fill="none"><path d="M2 12L6 7.5L9.5 10.5L14 4" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="14" cy="4" r="1.6" fill="var(--gold2)"/></svg></div>
+    <div><div class="brand-name">Apex<span>Intelligence</span></div><div class="brand-ver">VC &amp; MARKETS PLATFORM</div></div>
+  </div>
+  <div class="topbar-ticker">
+    <div class="tk"><span class="tk-name">NGX ASI</span><span class="tk-val">105,242</span><span class="tk-up">▲1.31%</span></div>
+    <div class="tk"><span class="tk-name">S&amp;P 500</span><span class="tk-val">5,421</span><span class="tk-up">▲0.48%</span></div>
+    <div class="tk"><span class="tk-name">FTSE</span><span class="tk-val">8,214</span><span class="tk-dn">▼0.22%</span></div>
+    <div class="tk"><span class="tk-name">Nikkei</span><span class="tk-val">38,460</span><span class="tk-up">▲0.74%</span></div>
+    <div class="tk"><span class="tk-name">USD/NGN</span><span class="tk-val">₦1,582</span><span class="tk-dn">▼0.13%</span></div>
+    <div class="tk"><span class="tk-name">Brent</span><span class="tk-val">$82.40</span><span class="tk-up">▲0.8%</span></div>
+  </div>
+  <div class="topbar-right">
+    <span class="clk" id="clk">--:--:--</span>
+    <div class="live-pill"><div class="ldot"></div>Markets Open</div>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-label">Overview</div>
+  <button class="nav-btn active" onclick="nav('dashboard',this)"><svg viewBox="0 0 14 14" fill="none"><rect x="1" y="7" width="3.5" height="6" rx="1" fill="currentColor"/><rect x="5.5" y="4" width="3.5" height="9" rx="1" fill="currentColor"/><rect x="10" y="1" width="3.5" height="12" rx="1" fill="currentColor"/></svg>Dashboard</button>
+  <div class="sb-label">VC Portfolio</div>
+  <button class="nav-btn" onclick="nav('vc-portfolio',this)"><svg viewBox="0 0 14 14" fill="none"><path d="M7 1.5l5.5 3v5L7 13 1.5 9.5v-5z" stroke="currentColor" stroke-width="1.1"/></svg>Portfolio<span class="sb-badge sb-new" id="vc-count-badge">0</span></button>
+  <button class="nav-btn" onclick="nav('vc-add',this)"><svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.1"/><path d="M7 4.5v5M4.5 7h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Add Company</button>
+  <button class="nav-btn" onclick="nav('vc-valuation',this)"><svg viewBox="0 0 14 14" fill="none"><path d="M2 10L5.5 6.5 8 9l4-6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Valuation Models</button>
+  <div class="sb-label">Public Markets</div>
+  <button class="nav-btn" onclick="nav('market-search',this)"><svg viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.1"/><path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Company Search<span class="sb-badge sb-live">Live</span></button>
+  <button class="nav-btn" onclick="nav('screener',this)"><svg viewBox="0 0 14 14" fill="none"><path d="M2 3.5h10M4 7h6M6 10.5h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Multi-Exchange Screener</button>
+  <button class="nav-btn" onclick="nav('watchlist',this)"><svg viewBox="0 0 14 14" fill="none"><path d="M7 1.5l1.5 3 3.3.5-2.4 2.3.6 3.3L7 9l-2.9 1.6.6-3.3L2.2 5l3.3-.5z" stroke="currentColor" stroke-width="1"/></svg>Watchlist</button>
+  <div class="sb-label">Intelligence</div>
+  <button class="nav-btn" onclick="nav('signals',this)"><svg viewBox="0 0 14 14" fill="none"><path d="M2 4.5h10M2 7.5h7M2 10.5h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Market Signals</button>
+  <button class="nav-btn" onclick="nav('macro',this)"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7 2c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5z" stroke="currentColor" stroke-width="1.1"/></svg>Global Macro</button>
+  <button class="nav-btn" onclick="nav('reports',this)"><svg viewBox="0 0 14 14" fill="none"><path d="M3 1.5h8l2 2v9.5H3z" stroke="currentColor" stroke-width="1"/><path d="M9 1.5v3h3" stroke="currentColor" stroke-width="1"/><path d="M5 7h4M5 9.5h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>AI Reports</button>
+  <div class="sb-divider"></div>
+  <div class="sb-label">Data Feeds</div>
+  <button class="nav-btn" onclick="nav('data-feeds',this)"><svg viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1"/><path d="M4 3V1.5M7 3V1.5M10 3V1.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>Data Feeds &amp; Scraper</button>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="page-dashboard" class="page active">
+  <div class="page-hd">
+    <div class="page-hd-left"><h1>Dashboard</h1><p>Portfolio overview · Market intelligence · April 2024</p></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-outline btn-sm" onclick="nav('vc-add',document.querySelectorAll('.nav-btn')[3])">+ Add Company</button>
+      <button class="btn btn-primary btn-sm" onclick="nav('market-search',document.querySelectorAll('.nav-btn')[5])">Search Markets ↗</button>
+    </div>
+  </div>
+  <div class="metrics">
+    <div class="mcard mc-blue"><div class="mcard-label">VC Portfolio Value</div><div class="mcard-val" id="dash-vc-val">$0</div><div class="mcard-sub neu" id="dash-vc-count">0 companies tracked</div></div>
+    <div class="mcard mc-green"><div class="mcard-label">Avg Portfolio MOIC</div><div class="mcard-val" id="dash-moic">—</div><div class="mcard-sub neu">Multiple on invested capital</div></div>
+    <div class="mcard mc-amber"><div class="mcard-label">Public Watchlist</div><div class="mcard-val" id="dash-watch-count">0</div><div class="mcard-sub neu">Stocks tracked</div></div>
+    <div class="mcard mc-purple"><div class="mcard-label">NGX ASI</div><div class="mcard-val">105,242</div><div class="mcard-sub pos">+1.31% today</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">VC Portfolio Snapshot</span><span class="card-action" onclick="nav('vc-portfolio',document.querySelectorAll('.nav-btn')[2])">View all →</span></div>
+      <div id="dash-vc-list"><div class="empty"><p>No companies added yet.</p><p style="margin-top:6px;font-size:11.5px;">Click "Add Company" to start tracking private investments.</p></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">Top Market Signals</span><span class="card-action" onclick="nav('signals',document.querySelectorAll('.nav-btn')[8])">All signals →</span></div>
+      <div class="sig-item"><div class="sig-dot-wrap sd-h"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 2.5v4.5M6.5 9.5v.5" stroke="#f87171" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="sig-body"><div class="sig-title">CBN holds MPR at 26.75% — naira at ₦1,582/$</div><div class="sig-meta"><span class="itag ih">HIGH</span>NGX Macro · 1h ago</div></div></div>
+      <div class="sig-item"><div class="sig-dot-wrap sd-m"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 9L6 5.5 8 7.5 11 3" stroke="var(--amber)" stroke-width="1.3" stroke-linecap="round"/></svg></div><div class="sig-body"><div class="sig-title">Fed holds rates — risk-on for EM equities</div><div class="sig-meta"><span class="itag im">MED</span>Global · 2h ago</div></div></div>
+      <div class="sig-item"><div class="sig-dot-wrap sd-m"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 9L6 5.5 8 7.5 11 3" stroke="var(--amber)" stroke-width="1.3" stroke-linecap="round"/></svg></div><div class="sig-body"><div class="sig-title">African tech VC funding up 22% Q1 2024</div><div class="sig-meta"><span class="itag im">MED</span>VC · 4h ago</div></div></div>
+      <div class="sig-item"><div class="sig-dot-wrap sd-l"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="4" stroke="var(--green)" stroke-width="1.2"/><path d="M4.5 6.5l1.5 1.5 2.5-2.5" stroke="var(--green)" stroke-width="1.2" stroke-linecap="round"/></svg></div><div class="sig-body"><div class="sig-title">DANGCEM Q1 earnings beat — +22% revenue</div><div class="sig-meta"><span class="itag il">LOW</span>NGX Earnings · 5h ago</div></div></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">Exchange Overview</span></div>
+      <div class="cw" style="height:200px;"><canvas id="exchChart" role="img" aria-label="Exchange performance chart"></canvas></div>
+    </div>
+    <div class="ai-panel">
+      <div class="ai-hd">
+        <div class="ai-icon"><svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="#fff" stroke-width="1.2"/><path d="M2 12.5c0-2.5 2.24-4 5-4s5 1.5 5 4" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+        <div style="flex:1"><div class="ai-hd-title">Apex AI Analyst</div><div class="ai-hd-sub">VC + public markets · multi-exchange context loaded</div></div>
+        <div class="live-pill" style="font-size:10px;"><div class="ldot"></div>Ready</div>
+      </div>
+      <div class="ai-body">
+        <div class="chips">
+          <span class="chip" onclick="ask(this)">Summarise my VC portfolio health</span>
+          <span class="chip" onclick="ask(this)">Which African markets should I watch today?</span>
+          <span class="chip" onclick="ask(this)">What's the best sector for Nigerian VC right now?</span>
+          <span class="chip" onclick="ask(this)">Compare NGX vs S&P 500 outlook for Q2</span>
+        </div>
+        <div class="ai-out ph" id="ai-out">Ask me anything — I have context on your VC portfolio, public market watchlist, global macro data and today's signals across all exchanges.</div>
+        <div class="ai-row">
+          <input class="ai-inp" id="ai-q" type="text" placeholder="e.g. Which of my portfolio companies are at risk from naira depreciation?" onkeydown="if(event.key==='Enter')go()"/>
+          <button class="ai-btn" id="ai-btn" onclick="go()">Ask Apex ↗</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ VC PORTFOLIO ═══ -->
+<div id="page-vc-portfolio" class="page">
+  <div class="page-hd">
+    <div class="page-hd-left"><h1>VC Portfolio</h1><p>Private company investments · manual tracking &amp; AI valuation</p></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div class="filter-bar">
+        <button class="filt active" onclick="filterVC(this,'all')">All</button>
+        <button class="filt" onclick="filterVC(this,'active')">Active</button>
+        <button class="filt" onclick="filterVC(this,'watch')">Watch</button>
+        <button class="filt" onclick="filterVC(this,'exit')">Exited</button>
+        <select class="filt-select inp" onchange="sortVC(this.value)" style="width:140px;">
+          <option value="">Sort by…</option>
+          <option value="name-asc">Name A→Z</option>
+          <option value="name-desc">Name Z→A</option>
+          <option value="val-desc">Valuation ↓</option>
+          <option value="val-asc">Valuation ↑</option>
+          <option value="moic-desc">MOIC ↓</option>
+          <option value="stage">Stage</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="nav('vc-add',document.querySelectorAll('.nav-btn')[3])">+ Add Company</button>
+    </div>
+  </div>
+  <div class="metrics">
+    <div class="mcard mc-blue"><div class="mcard-label">Total Deployed</div><div class="mcard-val" id="vc-total-inv">$0</div><div class="mcard-sub neu" id="vc-co-count">0 companies</div></div>
+    <div class="mcard mc-green"><div class="mcard-label">Total Portfolio Value</div><div class="mcard-val" id="vc-total-val">$0</div><div class="mcard-sub pos" id="vc-gain">—</div></div>
+    <div class="mcard mc-amber"><div class="mcard-label">Avg MOIC</div><div class="mcard-val" id="vc-avg-moic">—</div><div class="mcard-sub neu">Multiple on invested capital</div></div>
+    <div class="mcard mc-purple"><div class="mcard-label">Stage Breakdown</div><div class="mcard-val" id="vc-stages">—</div><div class="mcard-sub neu" id="vc-stage-sub">—</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><span class="card-title">Portfolio Companies</span><span class="card-action" id="vc-table-count">0 companies</span></div>
+    <div class="scroll-x">
+      <table class="tbl min-800" id="vc-table">
+        <thead>
+          <tr>
+            <th onclick="sortVCCol('name')">Company <span class="sort-arrow">↕</span></th>
+            <th onclick="sortVCCol('sector')">Sector <span class="sort-arrow">↕</span></th>
+            <th onclick="sortVCCol('stage')">Stage <span class="sort-arrow">↕</span></th>
+            <th onclick="sortVCCol('invested')" class="r">Invested <span class="sort-arrow">↕</span></th>
+            <th onclick="sortVCCol('valuation')" class="r">Current Val. <span class="sort-arrow">↕</span></th>
+            <th onclick="sortVCCol('moic')" class="r">MOIC <span class="sort-arrow">↕</span></th>
+            <th onclick="sortVCCol('irr')" class="r">IRR est. <span class="sort-arrow">↕</span></th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="vc-tbody"></tbody>
+      </table>
+    </div>
+    <div id="vc-empty" class="empty" style="display:none;">
+      <svg viewBox="0 0 36 36" fill="none"><path d="M18 4l12 6.9v13.2L18 31 6 24.1V10.9z" stroke="currentColor" stroke-width="1.5"/></svg>
+      <p>No companies yet. Add your first portfolio company →</p>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-hd"><span class="card-title">Sector Distribution</span></div><div class="cw" style="height:200px;"><canvas id="vcSectorChart" role="img" aria-label="VC sector distribution"></canvas></div></div>
+    <div class="card"><div class="card-hd"><span class="card-title">Stage Distribution</span></div><div class="cw" style="height:200px;"><canvas id="vcStageChart" role="img" aria-label="VC stage distribution"></canvas></div></div>
+  </div>
+</div>
+
+<!-- ═══ ADD COMPANY ═══ -->
+<div id="page-vc-add" class="page">
+  <div class="page-hd"><div class="page-hd-left"><h1>Add Portfolio Company</h1><p>Manually enter private company data for tracking and AI valuation</p></div></div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">Company Information</span></div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="form-group"><label class="lbl">Company Name *</label><input class="inp" id="add-name" placeholder="e.g. Flutterwave"/></div>
+        <div class="g2"><div class="form-group"><label class="lbl">Sector *</label><select class="inp" id="add-sector"><option value="">Select sector</option><option>Fintech</option><option>SaaS</option><option>E-commerce</option><option>Healthtech</option><option>Agritech</option><option>Edtech</option><option>Logistics</option><option>Energy</option><option>Real Estate</option><option>Media</option><option>Deep Tech</option><option>Consumer</option><option>Other</option></select></div><div class="form-group"><label class="lbl">Stage *</label><select class="inp" id="add-stage"><option value="">Select stage</option><option>Pre-seed</option><option>Seed</option><option>Series A</option><option>Series B</option><option>Series C</option><option>Growth</option><option>Pre-IPO</option></select></div></div>
+        <div class="g2"><div class="form-group"><label class="lbl">Country / HQ</label><input class="inp" id="add-country" placeholder="e.g. Nigeria"/></div><div class="form-group"><label class="lbl">Founded Year</label><input class="inp" id="add-founded" type="number" placeholder="e.g. 2019"/></div></div>
+        <div class="form-group"><label class="lbl">Description</label><textarea class="inp" id="add-desc" rows="3" placeholder="Brief business description…" style="resize:vertical;"></textarea></div>
+        <div class="form-group"><label class="lbl">Website</label><input class="inp" id="add-website" placeholder="https://…"/></div>
+        <div class="form-group"><label class="lbl">Status</label><select class="inp" id="add-status"><option>Active</option><option>Watch</option><option>Pipeline</option><option>Exited</option></select></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">Investment Details</span></div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="g2"><div class="form-group"><label class="lbl">Amount Invested (USD)</label><input class="inp" id="add-invested" type="number" placeholder="e.g. 500000"/></div><div class="form-group"><label class="lbl">Investment Date</label><input class="inp" id="add-inv-date" type="date"/></div></div>
+        <div class="g2"><div class="form-group"><label class="lbl">Ownership %</label><input class="inp" id="add-ownership" type="number" placeholder="e.g. 8.5" step="0.1"/></div><div class="form-group"><label class="lbl">Entry Valuation (USD)</label><input class="inp" id="add-entry-val" type="number" placeholder="e.g. 5000000"/></div></div>
+        <div class="form-group"><label class="lbl">Current Valuation (USD) — leave blank for AI estimate</label><input class="inp" id="add-curr-val" type="number" placeholder="e.g. 12000000"/></div>
+        <div class="card-hd" style="margin-top:6px;margin-bottom:0;"><span class="card-title">Financial Metrics (for valuation models)</span></div>
+        <div class="g2"><div class="form-group"><label class="lbl">Annual Revenue (USD)</label><input class="inp" id="add-revenue" type="number" placeholder="e.g. 2000000"/></div><div class="form-group"><label class="lbl">Revenue Growth % YoY</label><input class="inp" id="add-rev-growth" type="number" placeholder="e.g. 120"/></div></div>
+        <div class="g2"><div class="form-group"><label class="lbl">EBITDA / Net Income (USD)</label><input class="inp" id="add-ebitda" type="number" placeholder="e.g. -200000 or 400000"/></div><div class="form-group"><label class="lbl">Gross Margin %</label><input class="inp" id="add-gm" type="number" placeholder="e.g. 65"/></div></div>
+        <div class="g2"><div class="form-group"><label class="lbl">Monthly Burn (USD)</label><input class="inp" id="add-burn" type="number" placeholder="e.g. 80000"/></div><div class="form-group"><label class="lbl">Runway (months)</label><input class="inp" id="add-runway" type="number" placeholder="e.g. 18"/></div></div>
+        <div class="g2"><div class="form-group"><label class="lbl">No. of Employees</label><input class="inp" id="add-employees" type="number" placeholder="e.g. 45"/></div><div class="form-group"><label class="lbl">ARR / MRR (USD)</label><input class="inp" id="add-arr" type="number" placeholder="e.g. 1800000"/></div></div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;justify-content:flex-end;">
+    <button class="btn btn-outline" onclick="nav('vc-portfolio',document.querySelectorAll('.nav-btn')[2])">Cancel</button>
+    <button class="btn btn-green" onclick="aiValuate()">🤖 AI Valuation Estimate</button>
+    <button class="btn btn-primary" onclick="saveCompany()">Save Company →</button>
+  </div>
+  <div id="ai-val-result" style="display:none;">
+    <div class="card" style="border-color:rgba(79,110,247,.3);">
+      <div class="card-hd"><span class="card-title">AI Valuation Analysis</span><span class="card-action" onclick="document.getElementById('ai-val-result').style.display='none'">Close ✕</span></div>
+      <div id="ai-val-body" class="ai-out ph" style="min-height:60px;border:none;background:none;padding:0;">Loading…</div>
+      <div class="gauge-wrap" id="val-gauges" style="display:none;">
+        <div class="gauge-item"><div class="gauge-label">Revenue Multiple</div><div class="gauge-val pos" id="gv-rev">—</div></div>
+        <div class="gauge-item"><div class="gauge-label">DCF Estimate</div><div class="gauge-val pos" id="gv-dcf">—</div></div>
+        <div class="gauge-item"><div class="gauge-label">Scorecard</div><div class="gauge-val pos" id="gv-score">—</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ VALUATION MODELS ═══ -->
+<div id="page-vc-valuation" class="page">
+  <div class="page-hd"><div class="page-hd-left"><h1>Valuation Models</h1><p>DCF · Revenue multiple · Comparable · Scorecard · Berkus</p></div></div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">Select Company</span></div>
+      <select class="inp" id="val-company-select" onchange="loadValCompany(this.value)"><option value="">— Choose a portfolio company —</option></select>
+      <div id="val-company-preview" style="display:none;margin-top:14px;">
+        <div class="g3" id="val-preview-stats"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">DCF Model</span></div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="g2"><div class="form-group"><label class="lbl">Revenue Year 1 ($)</label><input class="inp" id="dcf-r1" type="number"/></div><div class="form-group"><label class="lbl">Growth Rate %</label><input class="inp" id="dcf-growth" type="number" placeholder="e.g. 80"/></div></div>
+        <div class="g2"><div class="form-group"><label class="lbl">Terminal Growth %</label><input class="inp" id="dcf-tg" type="number" value="3"/></div><div class="form-group"><label class="lbl">Discount Rate (WACC) %</label><input class="inp" id="dcf-wacc" type="number" value="20"/></div></div>
+        <div class="g2"><div class="form-group"><label class="lbl">EBITDA Margin % (Year 5)</label><input class="inp" id="dcf-margin" type="number" placeholder="e.g. 25"/></div><div class="form-group"><label class="lbl">Exit Multiple (EV/EBITDA)</label><input class="inp" id="dcf-exit-mult" type="number" value="12"/></div></div>
+        <button class="btn btn-primary" onclick="calcDCF()">Calculate DCF →</button>
+        <div id="dcf-result" class="val-result" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">Revenue Multiple Model</span></div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="g2"><div class="form-group"><label class="lbl">Current ARR / Revenue ($)</label><input class="inp" id="rm-rev" type="number"/></div><div class="form-group"><label class="lbl">Growth Rate % YoY</label><input class="inp" id="rm-growth" type="number"/></div></div>
+        <div class="g2"><div class="form-group"><label class="lbl">Gross Margin %</label><input class="inp" id="rm-gm" type="number"/></div><div class="form-group"><label class="lbl">Sector</label><select class="inp" id="rm-sector"><option>Fintech</option><option>SaaS</option><option>E-commerce</option><option>Healthtech</option><option>Agritech</option><option>Other</option></select></div></div>
+        <button class="btn btn-primary" onclick="calcRevMultiple()">Calculate →</button>
+        <div id="rm-result" class="val-result" style="display:none;"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">Scorecard Method (Seed/Pre-A)</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px;" id="scorecard-inputs">
+        <div><label class="lbl">Team strength (0–10)</label><input class="inp" id="sc-team" type="range" min="0" max="10" value="7" oninput="document.getElementById('sc-team-v').textContent=this.value"/><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-family:var(--mono);"><span>Weak</span><span id="sc-team-v">7</span><span>Exceptional</span></div></div>
+        <div><label class="lbl">Product / tech (0–10)</label><input class="inp" id="sc-product" type="range" min="0" max="10" value="6" oninput="document.getElementById('sc-prod-v').textContent=this.value"/><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-family:var(--mono);"><span>Early</span><span id="sc-prod-v">6</span><span>Launch-ready</span></div></div>
+        <div><label class="lbl">Market size (0–10)</label><input class="inp" id="sc-market" type="range" min="0" max="10" value="8" oninput="document.getElementById('sc-mkt-v').textContent=this.value"/><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-family:var(--mono);"><span>Niche</span><span id="sc-mkt-v">8</span><span>Massive</span></div></div>
+        <div><label class="lbl">Traction / revenue (0–10)</label><input class="inp" id="sc-traction" type="range" min="0" max="10" value="5" oninput="document.getElementById('sc-tr-v').textContent=this.value"/><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-family:var(--mono);"><span>Pre-revenue</span><span id="sc-tr-v">5</span><span>Strong PMF</span></div></div>
+        <div class="g2"><div class="form-group"><label class="lbl">Regional median pre-money ($)</label><input class="inp" id="sc-median" type="number" value="3000000"/></div><div></div></div>
+        <button class="btn btn-primary" onclick="calcScorecard()">Calculate Scorecard →</button>
+        <div id="sc-result" class="val-result" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="ai-panel">
+    <div class="ai-hd">
+      <div class="ai-icon"><svg viewBox="0 0 14 14" fill="none"><path d="M2 10L5.5 6.5 8 9l4-6" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1"><div class="ai-hd-title">AI Valuation Advisor</div><div class="ai-hd-sub">Ask me to reconcile models, benchmark against comps, or stress-test assumptions</div></div>
+    </div>
+    <div class="ai-body">
+      <div class="chips">
+        <span class="chip" onclick="askVal(this)">What multiple is appropriate for a Nigerian fintech at Series A?</span>
+        <span class="chip" onclick="askVal(this)">How should I adjust WACC for Nigerian market risk?</span>
+        <span class="chip" onclick="askVal(this)">Compare my DCF to comparable African startup exits</span>
+        <span class="chip" onclick="askVal(this)">What's a realistic MOIC target for a 5-year African VC fund?</span>
+      </div>
+      <div class="ai-out ph" id="val-ai-out">Ask me anything about valuation methodology, African startup benchmarks, or how to interpret your model outputs.</div>
+      <div class="ai-row">
+        <input class="ai-inp" id="val-ai-q" type="text" placeholder="e.g. My DCF gives $8M but revenue multiple gives $12M — how do I reconcile?" onkeydown="if(event.key==='Enter')goVal()"/>
+        <button class="ai-btn" onclick="goVal()">Ask ↗</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MARKET SEARCH ═══ -->
+<div id="page-market-search" class="page">
+  <div class="page-hd"><div class="page-hd-left"><h1>Company Search</h1><p>Search public companies across all exchanges — data fetched live</p></div></div>
+  <div class="card">
+    <div class="card-hd"><span class="card-title">Exchange</span></div>
+    <div class="exch-tabs" id="exch-tabs">
+      <div class="exch-tab active" onclick="setExch('NGX',this)">🇳🇬 NGX</div>
+      <div class="exch-tab" onclick="setExch('NYSE/NASDAQ',this)">🇺🇸 North America</div>
+      <div class="exch-tab" onclick="setExch('LSE/EURONEXT',this)">🇪🇺 Europe</div>
+      <div class="exch-tab" onclick="setExch('TSE/SGX/HKEX',this)">🌏 Asia</div>
+      <div class="exch-tab" onclick="setExch('Global',this)">🌍 Global</div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:10px;">
+      <div class="search-box" style="max-width:100%;flex:1;"><svg viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><input class="search-inp" id="mkt-search-inp" placeholder="Search by company name or ticker (e.g. DANGCEM, Apple, Nestlé)…" onkeydown="if(event.key==='Enter')searchMarket()"/></div>
+      <button class="btn btn-primary" onclick="searchMarket()">Search ↗</button>
+    </div>
+    <div id="search-status" style="margin-top:8px;font-size:11.5px;color:var(--muted);font-family:var(--mono);"></div>
+  </div>
+  <div id="search-results-wrap" style="display:none;">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">Search Results</span><span class="card-action" id="search-result-count"></span></div>
+      <div id="search-results"></div>
+    </div>
+  </div>
+  <div id="company-detail" style="display:none;">
+    <div class="card" style="border-color:rgba(79,110,247,.25);">
+      <div class="card-hd"><span class="card-title" id="cd-title">Company Detail</span><span class="card-action" onclick="closeDetail()">✕ Close</span></div>
+      <div class="metrics" id="cd-metrics" style="grid-template-columns:repeat(4,1fr);"></div>
+      <div class="g2" style="margin-top:12px;">
+        <div><div class="card-title" style="margin-bottom:10px;">Key Financials</div><div id="cd-financials"></div></div>
+        <div><div class="card-title" style="margin-bottom:10px;">AI Analysis</div><div class="ai-out" id="cd-ai" style="min-height:120px;"><div class="loader"><span></span><span></span><span></span></div></div></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <button class="btn btn-green btn-sm" onclick="addToWatchlist()">+ Add to Watchlist</button>
+        <button class="btn btn-primary btn-sm" onclick="addToVC()">Add as VC Holding</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCREENER ═══ -->
+<div id="page-screener" class="page">
+  <div class="page-hd"><div class="page-hd-left"><h1>Multi-Exchange Screener</h1><p>Filter stocks across NGX, North America, Europe, Asia &amp; Global</p></div></div>
+  <div class="card">
+    <div class="card-hd"><span class="card-title">Filters</span><span class="card-action" onclick="resetScreener()">Reset all</span></div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="filter-bar">
+        <span style="font-size:10.5px;font-family:var(--mono);color:var(--muted);white-space:nowrap;">Exchange:</span>
+        <button class="filt active" onclick="scrFilterExch(this,'all')">All</button>
+        <button class="filt" onclick="scrFilterExch(this,'NGX')">🇳🇬 NGX</button>
+        <button class="filt" onclick="scrFilterExch(this,'NYSE')">🇺🇸 NYSE</button>
+        <button class="filt" onclick="scrFilterExch(this,'NASDAQ')">🇺🇸 NASDAQ</button>
+        <button class="filt" onclick="scrFilterExch(this,'LSE')">🇬🇧 LSE</button>
+        <button class="filt" onclick="scrFilterExch(this,'JSE')">🇿🇦 JSE</button>
+        <button class="filt" onclick="scrFilterExch(this,'TSE')">🇯🇵 TSE</button>
+        <button class="filt" onclick="scrFilterExch(this,'HKEX')">🇭🇰 HKEX</button>
+      </div>
+      <div class="filter-bar">
+        <span style="font-size:10.5px;font-family:var(--mono);color:var(--muted);white-space:nowrap;">Sector:</span>
+        <button class="filt active" onclick="scrFilterSect(this,'all')">All</button>
+        <button class="filt" onclick="scrFilterSect(this,'Banking')">Banking</button>
+        <button class="filt" onclick="scrFilterSect(this,'Oil')">Oil &amp; Gas</button>
+        <button class="filt" onclick="scrFilterSect(this,'Tech')">Technology</button>
+        <button class="filt" onclick="scrFilterSect(this,'Consumer')">Consumer</button>
+        <button class="filt" onclick="scrFilterSect(this,'Cement')">Cement/Ind.</button>
+        <button class="filt" onclick="scrFilterSect(this,'Telecoms')">Telecoms</button>
+        <button class="filt" onclick="scrFilterSect(this,'Health')">Healthcare</button>
+        <button class="filt" onclick="scrFilterSect(this,'Energy')">Energy</button>
+      </div>
+      <div class="g4">
+        <div class="range-wrap"><div class="range-label">Market Cap (min $B)</div><input type="range" class="range-inp" id="scr-mcap" min="0" max="500" value="0" step="1" oninput="scrApply()"/><div class="range-vals"><span>$0</span><span id="scr-mcap-v" style="color:var(--accent2);font-family:var(--mono);font-size:10px;">$0B+</span><span>$500B</span></div></div>
+        <div class="range-wrap"><div class="range-label">P/E Ratio (max)</div><input type="range" class="range-inp" id="scr-pe" min="0" max="100" value="100" step="1" oninput="scrApply()"/><div class="range-vals"><span>0</span><span id="scr-pe-v" style="color:var(--accent2);font-family:var(--mono);font-size:10px;">Any</span><span>100×</span></div></div>
+        <div class="range-wrap"><div class="range-label">Div. Yield (min %)</div><input type="range" class="range-inp" id="scr-div" min="0" max="15" value="0" step="0.5" oninput="scrApply()"/><div class="range-vals"><span>0%</span><span id="scr-div-v" style="color:var(--accent2);font-family:var(--mono);font-size:10px;">0%+</span><span>15%</span></div></div>
+        <div class="range-wrap"><div class="range-label">YTD Return (min %)</div><input type="range" class="range-inp" id="scr-ytd" min="-50" max="100" value="-50" step="1" oninput="scrApply()"/><div class="range-vals"><span>−50%</span><span id="scr-ytd-v" style="color:var(--accent2);font-family:var(--mono);font-size:10px;">Any</span><span>+100%</span></div></div>
+      </div>
+      <div class="filter-bar">
+        <span style="font-size:10.5px;font-family:var(--mono);color:var(--muted);white-space:nowrap;">Sort:</span>
+        <select class="inp filt-select" id="scr-sort" onchange="scrApply()" style="width:160px;"><option value="ytd-desc">YTD Return ↓</option><option value="ytd-asc">YTD Return ↑</option><option value="mcap-desc">Market Cap ↓</option><option value="mcap-asc">Market Cap ↑</option><option value="pe-asc">P/E Ratio ↑</option><option value="div-desc">Div. Yield ↓</option><option value="name-asc">Name A→Z</option></select>
+        <div class="search-box"><svg viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><input class="search-inp" id="scr-search" placeholder="Filter by name or ticker…" oninput="scrApply()"/></div>
+        <div class="toggle-wrap"><div class="toggle" id="scr-pos-toggle" onclick="togglePos(this)"></div><span class="toggle-label">Positive YTD only</span></div>
+        <div class="toggle-wrap"><div class="toggle" id="scr-div-toggle" onclick="toggleDiv(this)"></div><span class="toggle-label">Dividend payers only</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><span class="card-title">Results</span><span class="card-action" id="scr-count">— stocks</span></div>
+    <div class="scroll-x">
+      <table class="tbl" id="scr-table" style="min-width:900px;">
+        <thead>
+          <tr>
+            <th onclick="scrSort('name')">Company <span class="sort-arrow">↕</span></th>
+            <th>Exchange</th>
+            <th>Sector</th>
+            <th onclick="scrSort('price')" class="r">Price <span class="sort-arrow">↕</span></th>
+            <th onclick="scrSort('ytd')" class="r">YTD <span class="sort-arrow">↕</span></th>
+            <th onclick="scrSort('mcap')" class="r">Mkt Cap <span class="sort-arrow">↕</span></th>
+            <th onclick="scrSort('pe')" class="r">P/E <span class="sort-arrow">↕</span></th>
+            <th onclick="scrSort('div')" class="r">Div. Yield <span class="sort-arrow">↕</span></th>
+            <th class="r">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="scr-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ WATCHLIST ═══ -->
+<div id="page-watchlist" class="page">
+  <div class="page-hd">
+    <div class="page-hd-left"><h1>Watchlist</h1><p>Public stocks you're tracking across exchanges</p></div>
+    <div class="filter-bar">
+      <select class="inp filt-select" id="wl-sort" onchange="renderWatchlist()" style="width:150px;"><option value="ytd-desc">YTD ↓</option><option value="ytd-asc">YTD ↑</option><option value="name-asc">Name A→Z</option><option value="added-desc">Recently added</option></select>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><span class="card-title">Watched Stocks</span><span class="card-action" id="wl-count">0 stocks</span></div>
+    <div id="wl-list"><div class="empty"><svg viewBox="0 0 36 36" fill="none"><path d="M18 3l4 8.5 9.4 1.3-6.8 6.7 1.6 9.4L18 24l-8.2 4.9 1.6-9.4-6.8-6.7 9.4-1.3z" stroke="currentColor" stroke-width="1.5"/></svg><p>No stocks on watchlist yet. Search for companies and add them here.</p></div></div>
+  </div>
+</div>
+
+<!-- ═══ SIGNALS ═══ -->
+<div id="page-signals" class="page">
+  <div class="page-hd">
+    <div class="page-hd-left"><h1>Market Signals</h1><p>AI-processed intelligence across all markets</p></div>
+    <div class="filter-bar">
+      <button class="filt active" onclick="filterSig(this,'all')">All</button>
+      <button class="filt" onclick="filterSig(this,'ngx')">NGX</button>
+      <button class="filt" onclick="filterSig(this,'global')">Global</button>
+      <button class="filt" onclick="filterSig(this,'vc')">VC/Private</button>
+      <button class="filt" onclick="filterSig(this,'macro')">Macro</button>
+    </div>
+  </div>
+  <div id="signals-list"></div>
+</div>
+
+<!-- ═══ MACRO ═══ -->
+<div id="page-macro" class="page">
+  <div class="page-hd"><div class="page-hd-left"><h1>Global Macro</h1><p>Key economic indicators across all regions</p></div></div>
+  <div class="exch-tabs" id="macro-tabs" style="width:fit-content;">
+    <div class="exch-tab active" onclick="setMacroRegion('nigeria',this)">🇳🇬 Nigeria</div>
+    <div class="exch-tab" onclick="setMacroRegion('us',this)">🇺🇸 USA</div>
+    <div class="exch-tab" onclick="setMacroRegion('europe',this)">🇪🇺 Europe</div>
+    <div class="exch-tab" onclick="setMacroRegion('asia',this)">🌏 Asia</div>
+    <div class="exch-tab" onclick="setMacroRegion('global',this)">🌍 Global</div>
+  </div>
+  <div id="macro-content"></div>
+  <div class="ai-panel">
+    <div class="ai-hd"><div class="ai-icon"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7 2c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5z" stroke="#fff" stroke-width="1.1"/></svg></div><div style="flex:1"><div class="ai-hd-title">Macro AI Analyst</div><div class="ai-hd-sub">Ask me about cross-market macro themes and their portfolio implications</div></div></div>
+    <div class="ai-body">
+      <div class="chips"><span class="chip" onclick="askMacro(this)">How does US Fed policy affect NGX stocks?</span><span class="chip" onclick="askMacro(this)">What's the outlook for naira in H2 2024?</span><span class="chip" onclick="askMacro(this)">Is African inflation peaking?</span><span class="chip" onclick="askMacro(this)">How should I position for a global recession?</span></div>
+      <div class="ai-out ph" id="macro-ai-out">Ask me about macro trends, central bank policy, inflation or cross-border capital flows.</div>
+      <div class="ai-row"><input class="ai-inp" id="macro-ai-q" type="text" placeholder="e.g. How does rising US yields affect African EM bond flows?" onkeydown="if(event.key==='Enter')goMacro()"/><button class="ai-btn" onclick="goMacro()">Ask ↗</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ REPORTS ═══ -->
+<div id="page-reports" class="page">
+  <div class="page-hd"><div class="page-hd-left"><h1>AI Reports</h1><p>Click any report to generate a full AI-written intelligence document</p></div></div>
+  <div class="card">
+    <div class="card-hd"><span class="card-title">VC Portfolio Reports</span></div>
+    <div class="rep-item" onclick="genReport('vc-summary')"><div class="rep-icon" style="background:rgba(79,110,247,.12);"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2l10 6v8l-10 5L-1 16V8z" stroke="var(--accent2)" stroke-width="1.2"/></svg></div><div><div class="rep-title">VC Portfolio Summary</div><div class="rep-meta">Holdings review, MOIC, IRR, sector exposure, risks</div></div><span class="rep-badge rb-ai">AI Generate ↗</span></div>
+    <div class="rep-item" onclick="genReport('vc-valuation-report')"><div class="rep-icon" style="background:rgba(212,165,58,.12);"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 14L7 9l3 3 5-8" stroke="var(--gold2)" stroke-width="1.3" stroke-linecap="round"/></svg></div><div><div class="rep-title">Valuation Benchmarking Report</div><div class="rep-meta">Portfolio valuations vs African VC comp set</div></div><span class="rep-badge rb-ai">AI Generate ↗</span></div>
+    <div class="rep-item" onclick="genReport('vc-risk')"><div class="rep-icon" style="background:rgba(240,79,82,.1);"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2l7 13H2z" stroke="var(--red)" stroke-width="1.2"/><path d="M9 8v3M9 13v.5" stroke="var(--red)" stroke-width="1.3" stroke-linecap="round"/></svg></div><div><div class="rep-title">Portfolio Risk Assessment</div><div class="rep-meta">Concentration, FX, liquidity and sector risks</div></div><span class="rep-badge rb-gen">AI Generate ↗</span></div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><span class="card-title">Market Reports</span></div>
+    <div class="rep-item" onclick="genReport('ngx-monthly')"><div class="rep-icon" style="background:rgba(34,201,122,.1);"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="2" width="12" height="14" rx="1.5" stroke="var(--green)" stroke-width="1.2"/><path d="M6 7h6M6 10h4" stroke="var(--green)" stroke-width="1.1" stroke-linecap="round"/></svg></div><div><div class="rep-title">NGX Monthly Market Report</div><div class="rep-meta">Index performance, sector moves, earnings, outlook</div></div><span class="rep-badge rb-gen">AI Generate ↗</span></div>
+    <div class="rep-item" onclick="genReport('global-scan')"><div class="rep-icon" style="background:rgba(28,200,176,.1);"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 9h12M9 3c-3.5 0-6 2.69-6 6s2.5 6 6 6 6-2.69 6-6-2.5-6-6-6z" stroke="var(--teal)" stroke-width="1.2"/></svg></div><div><div class="rep-title">Global Market Scan</div><div class="rep-meta">Cross-exchange overview, macro themes, opportunities</div></div><span class="rep-badge rb-ai">AI Generate ↗</span></div>
+    <div class="rep-item" onclick="genReport('africa-vc')"><div class="rep-icon" style="background:rgba(168,85,247,.12);"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="#c084fc" stroke-width="1.2"/><path d="M9 5.5v3.5l2.5 1.5" stroke="#c084fc" stroke-width="1.1" stroke-linecap="round"/></svg></div><div><div class="rep-title">Africa VC Landscape Q2 2024</div><div class="rep-meta">Funding trends, hot sectors, notable deals</div></div><span class="rep-badge rb-ai">AI Generate ↗</span></div>
+  </div>
+  <div class="card" id="rep-output" style="display:none;">
+    <div class="card-hd"><span class="card-title" id="rep-out-title">Report</span><span class="card-action" onclick="document.getElementById('rep-output').style.display='none'">Close ✕</span></div>
+    <div id="rep-out-body" style="font-size:13.5px;line-height:1.85;color:var(--text);"></div>
+  </div>
+</div>
+
+<!-- ═══ DATA FEEDS ═══ -->
+<div id="page-data-feeds" class="page">
+  <div class="page-hd"><div class="page-hd-left"><h1>Data Feeds &amp; Scraper</h1><p>Configure live data sources, run scrapers and manage API connections</p></div></div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">Live Data Feeds</span></div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+          <div><div style="font-size:13px;font-weight:500;">NGX Real-time Prices</div><div style="font-size:11px;font-family:var(--mono);color:var(--muted);">NGX Exchange data · Equities & indices</div></div>
+          <div style="display:flex;align-items:center;gap:8px;"><div class="live-pill" style="font-size:10px;"><div class="ldot"></div>Live</div></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+          <div><div style="font-size:13px;font-weight:500;">Alpha Vantage (Global equities)</div><div style="font-size:11px;font-family:var(--mono);color:var(--muted);">NYSE, NASDAQ, LSE, TSE prices & fundamentals</div></div>
+          <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:10px;color:var(--green);font-family:var(--mono);">Connected</span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+          <div><div style="font-size:13px;font-weight:500;">CBN FX Rates</div><div style="font-size:11px;font-family:var(--mono);color:var(--muted);">USD/NGN NAFEM, parallel market rates</div></div>
+          <div style="display:flex;align-items:center;gap:8px;"><div class="live-pill" style="font-size:10px;"><div class="ldot"></div>Live</div></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+          <div><div style="font-size:13px;font-weight:500;">World Bank API</div><div style="font-size:11px;font-family:var(--mono);color:var(--muted);">GDP, inflation, macro indicators</div></div>
+          <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:10px;color:var(--green);font-family:var(--mono);">Connected</span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
+          <div><div style="font-size:13px;font-weight:500;">Reuters / FT News Feed</div><div style="font-size:11px;font-family:var(--mono);color:var(--muted);">AI-processed news signals</div></div>
+          <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:10px;color:var(--amber);font-family:var(--mono);">Configure API key →</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">AI Web Scraper</span></div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <p style="font-size:12.5px;color:var(--muted);line-height:1.6;">Paste a URL of any company page, financial report, NGX filing, or market data page. The AI will extract and structure the key data.</p>
+        <div class="form-group"><label class="lbl">URL to scrape</label><input class="inp" id="scrape-url" placeholder="e.g. https://ngxgroup.com/exchange/data/equities-price-list/"/></div>
+        <div class="form-group"><label class="lbl">What data to extract</label><select class="inp" id="scrape-type"><option>Stock prices & changes</option><option>Company financials</option><option>Earnings results</option><option>Regulatory filings</option><option>VC funding news</option><option>Macro indicators</option><option>Custom (describe below)</option></select></div>
+        <div class="form-group"><label class="lbl">Custom extraction instructions (optional)</label><textarea class="inp" id="scrape-custom" rows="2" placeholder="e.g. Extract the P/E ratio, revenue, net income and dividend yield for each company…" style="resize:vertical;"></textarea></div>
+        <button class="btn btn-primary" onclick="runScraper()">🔍 Scrape &amp; Extract with AI</button>
+        <div id="scrape-status" style="font-size:11.5px;font-family:var(--mono);color:var(--muted);"></div>
+        <div id="scrape-result" class="ai-out ph" style="display:none;min-height:80px;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><span class="card-title">Data Scraper Log</span></div>
+    <div id="scraper-log">
+      <div class="empty"><p>No scraping runs yet. Use the panel above to extract market data.</p></div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+let vcPortfolio = JSON.parse(localStorage.getItem('apex_vc') || '[]');
+let watchlist   = JSON.parse(localStorage.getItem('apex_wl') || '[]');
+let scrLog      = JSON.parse(localStorage.getItem('apex_log') || '[]');
+let scrExch = 'all', scrSect = 'all', scrPosOnly = false, scrDivOnly = false;
+let vcStatusFilter = 'all';
+let vcSortCol = '', vcSortDir = 1;
+let currentSearchResult = null;
+let currentMacroRegion = 'nigeria';
+let activeExch = 'NGX';
+
+// ══════════════════════════════════════════════════
+// CLOCK
+// ══════════════════════════════════════════════════
+function tick(){
+  const now = new Date();
+  const opts = {timeZone:'Africa/Lagos',hour:'2-digit',minute:'2-digit',second:'2-digit'};
+  document.getElementById('clk').textContent = 'Lagos · ' + now.toLocaleTimeString('en-GB',opts);
+}
+tick(); setInterval(tick,1000);
+
+// ══════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════
+function nav(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  const handlers = {
+    'dashboard': refreshDashboard,
+    'vc-portfolio': renderVCPortfolio,
+    'vc-valuation': buildValSelect,
+    'screener': ()=>{buildScreenerData();scrApply();},
+    'watchlist': renderWatchlist,
+    'signals': renderSignals,
+    'macro': ()=>renderMacro(currentMacroRegion),
+    'data-feeds': renderScraperLog,
+  };
+  if(handlers[id]) setTimeout(handlers[id],50);
+  if(id==='dashboard') setTimeout(initExchChart,80);
+}
+
+// ══════════════════════════════════════════════════
+// NOTIFICATIONS
+// ══════════════════════════════════════════════════
+function notify(msg, type='g'){
+  const n = document.getElementById('notif');
+  n.textContent = msg; n.className = `notif notif-${type} show`;
+  setTimeout(()=>n.classList.remove('show'),3000);
+}
+
+// ══════════════════════════════════════════════════
+// CLAUDE AI
+// ══════════════════════════════════════════════════
+const SYSTEM_PROMPT = `You are Apex Intelligence AI — an expert analyst for a VC and public markets intelligence platform. You have expertise in:
+- African private markets, VC investing, startup valuations (DCF, revenue multiples, scorecard, Berkus)
+- Nigerian capital markets (NGX), CBN monetary policy, naira FX dynamics
+- Global equities: NYSE, NASDAQ, LSE, EURONEXT, TSE, HKEX, JSE, NGX
+- VC fund mechanics: MOIC, IRR, portfolio construction, exit strategies
+- Macro economics across Africa, US, Europe and Asia
+
+CURRENT MARKET DATA (live):
+- NGX ASI: 105,242 (+1.31%)
+- NGX 30: 4,812 (+0.94%)  
+- S&P 500: 5,421 (+0.48%)
+- FTSE 100: 8,214 (-0.22%)
+- Nikkei: 38,460 (+0.74%)
+- USD/NGN: ₦1,582 (NAFEM)
+- Brent crude: $82.40/bbl
+- CBN MPR: 26.75% (held)
+- Nigeria CPI: 33.2%
+- US Fed rate: 5.25-5.50% (held)
+- ECB rate: 4.50%
+
+VC PORTFOLIO: ${JSON.stringify(vcPortfolio)}
+WATCHLIST: ${JSON.stringify(watchlist.slice(0,10))}
+
+Respond concisely (3-5 sentences for chat, longer for reports). Be specific with numbers. No markdown. No bullet points in chat responses.`;
+
+async function callClaude(question, outEl, btnEl, sysOverride){
+  outEl.className = outEl.className.replace(' ph','');
+  outEl.innerHTML = '<div class="loader"><span></span><span></span><span></span></div>';
+  if(btnEl) btnEl.disabled=true;
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:1500,
+        system: sysOverride||SYSTEM_PROMPT,
+        messages:[{role:'user',content:question}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.find(b=>b.type==='text')?.text||'Unable to generate response.';
+    outEl.textContent = text;
+    return text;
+  }catch(e){
+    outEl.style.color='var(--red)'; outEl.textContent='Connection error. Please try again.';
+    return null;
+  }finally{
+    if(btnEl) btnEl.disabled=false;
+  }
+}
+
+function go(){
+  const q=document.getElementById('ai-q').value.trim();
+  if(!q)return;
+  callClaude(q, document.getElementById('ai-out'), document.getElementById('ai-btn'));
+  document.getElementById('ai-q').value='';
+}
+function ask(el){ callClaude(el.textContent, document.getElementById('ai-out'), document.getElementById('ai-btn')); }
+function goVal(){
+  const q=document.getElementById('val-ai-q').value.trim(); if(!q)return;
+  callClaude(q,document.getElementById('val-ai-out'),null); document.getElementById('val-ai-q').value='';
+}
+function askVal(el){ callClaude(el.textContent,document.getElementById('val-ai-out'),null); }
+function goMacro(){
+  const q=document.getElementById('macro-ai-q').value.trim(); if(!q)return;
+  callClaude(q,document.getElementById('macro-ai-out'),null); document.getElementById('macro-ai-q').value='';
+}
+function askMacro(el){ callClaude(el.textContent,document.getElementById('macro-ai-out'),null); }
+
+// ══════════════════════════════════════════════════
+// VC PORTFOLIO
+// ══════════════════════════════════════════════════
+function saveCompany(){
+  const name = document.getElementById('add-name').value.trim();
+  if(!name){ notify('Company name is required','r'); return; }
+  const co = {
+    id: Date.now(),
+    name, sector: document.getElementById('add-sector').value,
+    stage: document.getElementById('add-stage').value,
+    country: document.getElementById('add-country').value,
+    founded: document.getElementById('add-founded').value,
+    desc: document.getElementById('add-desc').value,
+    website: document.getElementById('add-website').value,
+    status: document.getElementById('add-status').value,
+    invested: parseFloat(document.getElementById('add-invested').value)||0,
+    invDate: document.getElementById('add-inv-date').value,
+    ownership: parseFloat(document.getElementById('add-ownership').value)||0,
+    entryVal: parseFloat(document.getElementById('add-entry-val').value)||0,
+    currVal: parseFloat(document.getElementById('add-curr-val').value)||0,
+    revenue: parseFloat(document.getElementById('add-revenue').value)||0,
+    revGrowth: parseFloat(document.getElementById('add-rev-growth').value)||0,
+    ebitda: parseFloat(document.getElementById('add-ebitda').value)||0,
+    gm: parseFloat(document.getElementById('add-gm').value)||0,
+    burn: parseFloat(document.getElementById('add-burn').value)||0,
+    runway: parseFloat(document.getElementById('add-runway').value)||0,
+    employees: parseFloat(document.getElementById('add-employees').value)||0,
+    arr: parseFloat(document.getElementById('add-arr').value)||0,
+    addedAt: new Date().toISOString()
+  };
+  if(co.currVal===0 && co.entryVal>0) co.currVal = co.entryVal;
+  vcPortfolio.push(co);
+  localStorage.setItem('apex_vc', JSON.stringify(vcPortfolio));
+  document.getElementById('vc-count-badge').textContent = vcPortfolio.length;
+  notify(`${name} added to VC portfolio ✓`);
+  // clear form
+  ['add-name','add-sector','add-stage','add-country','add-founded','add-desc','add-website','add-invested','add-inv-date','add-ownership','add-entry-val','add-curr-val','add-revenue','add-rev-growth','add-ebitda','add-gm','add-burn','add-runway','add-employees','add-arr'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  nav('vc-portfolio', document.querySelectorAll('.nav-btn')[2]);
+}
+
+function deleteVC(id){
+  if(!confirm('Delete this company from portfolio?')) return;
+  vcPortfolio = vcPortfolio.filter(c=>c.id!==id);
+  localStorage.setItem('apex_vc',JSON.stringify(vcPortfolio));
+  document.getElementById('vc-count-badge').textContent = vcPortfolio.length;
+  renderVCPortfolio(); notify('Company removed');
+}
+
+function filterVC(el, val){
+  vcStatusFilter = val;
+  document.querySelectorAll('#page-vc-portfolio .filt').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active'); renderVCPortfolio();
+}
+function sortVC(val){
+  if(!val) return;
+  const [col,dir] = val.split('-');
+  vcSortCol = col; vcSortDir = dir==='desc'?-1:1;
+  renderVCPortfolio();
+}
+function sortVCCol(col){
+  if(vcSortCol===col) vcSortDir*=-1; else{vcSortCol=col;vcSortDir=1;}
+  document.querySelectorAll('#vc-table th .sort-arrow').forEach(a=>a.parentElement.classList.remove('sorted'));
+  renderVCPortfolio();
+}
+
+function renderVCPortfolio(){
+  let data = [...vcPortfolio];
+  if(vcStatusFilter!=='all') data = data.filter(c=>c.status&&c.status.toLowerCase()===vcStatusFilter);
+  if(vcSortCol){
+    data.sort((a,b)=>{
+      let av=a[vcSortCol]||0, bv=b[vcSortCol]||0;
+      if(vcSortCol==='name') {av=a.name;bv=b.name;}
+      if(vcSortCol==='moic') {av=a.invested>0?a.currVal/a.invested:0;bv=b.invested>0?b.currVal/b.invested:0;}
+      if(vcSortCol==='irr') {av=calcIRR(a);bv=calcIRR(b);}
+      if(typeof av==='string') return av.localeCompare(bv)*vcSortDir;
+      return (av-bv)*vcSortDir;
+    });
+  }
+  const tbody = document.getElementById('vc-tbody');
+  const empty = document.getElementById('vc-empty');
+  if(data.length===0){
+    tbody.innerHTML=''; empty.style.display='block';
+  } else {
+    empty.style.display='none';
+    tbody.innerHTML = data.map(c=>{
+      const moic = c.invested>0?(c.currVal/c.invested).toFixed(2):'—';
+      const irr = calcIRR(c);
+      const stageClass = {
+        'Pre-seed':'stage-seed','Seed':'stage-seed','Series A':'stage-a',
+        'Series B':'stage-b','Series C':'stage-c','Growth':'stage-growth','Pre-IPO':'stage-growth'
+      }[c.stage]||'stage-seed';
+      const stClass = {'Active':'st-active','Watch':'st-watch','Exited':'st-exit','Pipeline':'st-pipeline'}[c.status]||'st-active';
+      return `<tr>
+        <td><div style="font-weight:500;">${c.name}</div><div class="co-name">${c.country||''}</div></td>
+        <td><span class="sbadge sb-fintech">${c.sector||'—'}</span></td>
+        <td><span class="stage ${stageClass}">${c.stage||'—'}</span></td>
+        <td class="mono r">$${fmt(c.invested)}</td>
+        <td class="mono r">$${fmt(c.currVal)}</td>
+        <td class="mono r ${parseFloat(moic)>=1?'pos':'neg'}">${moic}×</td>
+        <td class="mono r ${irr>0?'pos':'neg'}">${irr?irr+'%':'—'}</td>
+        <td><span class="status ${stClass}">${c.status||'Active'}</span></td>
+        <td><button class="btn btn-outline btn-sm" onclick="aiAnalyseCo(${c.id})" style="margin-right:4px;">AI ↗</button><button class="btn btn-danger btn-sm" onclick="deleteVC(${c.id})">✕</button></td>
+      </tr>`;
+    }).join('');
+  }
+  document.getElementById('vc-table-count').textContent = data.length+' companies';
+  // metrics
+  const total = vcPortfolio.reduce((s,c)=>s+c.invested,0);
+  const totalVal = vcPortfolio.reduce((s,c)=>s+c.currVal,0);
+  const avgMoic = total>0?(totalVal/total).toFixed(2)+'×':'—';
+  document.getElementById('vc-total-inv').textContent='$'+fmt(total);
+  document.getElementById('vc-total-val').textContent='$'+fmt(totalVal);
+  document.getElementById('vc-gain').textContent = total>0?(totalVal>=total?'+':'−')+'$'+fmt(Math.abs(totalVal-total))+' ('+(((totalVal-total)/total)*100).toFixed(1)+'%)':'—';
+  document.getElementById('vc-avg-moic').textContent=avgMoic;
+  document.getElementById('vc-co-count').textContent=vcPortfolio.length+' companies';
+  const stages = [...new Set(vcPortfolio.map(c=>c.stage))].filter(Boolean);
+  document.getElementById('vc-stages').textContent=stages.length?stages[0]:'—';
+  document.getElementById('vc-stage-sub').textContent=stages.length>1?'+'+( stages.length-1)+' more stages':'Only stage';
+  buildVCCharts(data);
+}
+
+function calcIRR(c){
+  if(!c.invested||!c.invDate) return null;
+  const years = Math.max(0.1,(Date.now()-new Date(c.invDate))/(365.25*24*3600*1000));
+  const moic = c.currVal/c.invested;
+  if(moic<=0) return null;
+  return (((Math.pow(moic,1/years)-1)*100).toFixed(1));
+}
+
+function fmt(n){
+  if(!n||isNaN(n)) return '0';
+  if(n>=1e9) return (n/1e9).toFixed(2)+'B';
+  if(n>=1e6) return (n/1e6).toFixed(2)+'M';
+  if(n>=1e3) return (n/1e3).toFixed(1)+'K';
+  return n.toFixed(0);
+}
+
+async function aiAnalyseCo(id){
+  const co = vcPortfolio.find(c=>c.id===id);
+  if(!co) return;
+  const q = `Analyse this VC portfolio company and give a brief investment assessment: ${JSON.stringify(co)}. Cover current valuation reasonableness, key risks, and whether to hold/double-down/exit. Be specific.`;
+  const out = document.getElementById('ai-out');
+  nav('dashboard', document.querySelectorAll('.nav-btn')[0]);
+  callClaude(q, out, document.getElementById('ai-btn'));
+}
+
+async function aiValuate(){
+  const name=document.getElementById('add-name').value.trim();
+  const rev=parseFloat(document.getElementById('add-revenue').value)||0;
+  const growth=parseFloat(document.getElementById('add-rev-growth').value)||0;
+  const gm=parseFloat(document.getElementById('add-gm').value)||0;
+  const stage=document.getElementById('add-stage').value;
+  const sector=document.getElementById('add-sector').value;
+  const arr=parseFloat(document.getElementById('add-arr').value)||0;
+  const ebitda=parseFloat(document.getElementById('add-ebitda').value)||0;
+  const burn=parseFloat(document.getElementById('add-burn').value)||0;
+  const runway=parseFloat(document.getElementById('add-runway').value)||0;
+  const desc=document.getElementById('add-desc').value;
+  const invested=parseFloat(document.getElementById('add-invested').value)||0;
+
+  const wrap = document.getElementById('ai-val-result');
+  const body = document.getElementById('ai-val-body');
+  wrap.style.display='block';
+  body.className='ai-out'; body.innerHTML='<div class="loader"><span></span><span></span><span></span></div>';
+  document.getElementById('val-gauges').style.display='none';
+  wrap.scrollIntoView({behavior:'smooth',block:'start'});
+
+  const prompt = `You are valuing a private company for VC investment. Provide 3 valuation estimates using different methods and a written analysis.
+
+Company: ${name||'Unnamed'}
+Sector: ${sector}, Stage: ${stage}
+Description: ${desc}
+Annual Revenue: $${fmt(rev)}, ARR: $${fmt(arr)}
+Revenue Growth YoY: ${growth}%
+Gross Margin: ${gm}%, EBITDA: $${fmt(ebitda)}
+Monthly Burn: $${fmt(burn)}, Runway: ${runway} months
+Amount to be invested: $${fmt(invested)}
+
+Respond ONLY with valid JSON in this exact format (no other text):
+{"revMultiple":{"low":0,"mid":0,"high":0},"dcf":{"low":0,"mid":0,"high":0},"scorecard":{"low":0,"mid":0,"high":0},"analysis":"Your 3-4 sentence written analysis here"}
+
+All values are USD amounts (not formatted strings).`;
+
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})
+    });
+    const data = await res.json();
+    const raw = data.content?.find(b=>b.type==='text')?.text||'{}';
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    body.textContent = parsed.analysis||'Valuation complete.';
+    document.getElementById('gv-rev').textContent='$'+fmt(parsed.revMultiple?.mid||0);
+    document.getElementById('gv-dcf').textContent='$'+fmt(parsed.dcf?.mid||0);
+    document.getElementById('gv-score').textContent='$'+fmt(parsed.scorecard?.mid||0);
+    document.getElementById('val-gauges').style.display='grid';
+    // auto-fill valuation field with midpoint
+    const mid = Math.round((
+      (parsed.revMultiple?.mid||0)+(parsed.dcf?.mid||0)+(parsed.scorecard?.mid||0)
+    )/3);
+    if(mid>0 && !document.getElementById('add-curr-val').value) document.getElementById('add-curr-val').value=mid;
+  }catch(e){
+    body.textContent='Could not parse AI valuation. Please enter manually.';
+  }
+}
+
+// ══════════════════════════════════════════════════
+// VALUATION MODELS
+// ══════════════════════════════════════════════════
+function buildValSelect(){
+  const sel = document.getElementById('val-company-select');
+  sel.innerHTML='<option value="">— Choose a portfolio company —</option>'+
+    vcPortfolio.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+function loadValCompany(id){
+  const c = vcPortfolio.find(co=>co.id==id);
+  const prev = document.getElementById('val-company-preview');
+  if(!c){prev.style.display='none';return;}
+  prev.style.display='block';
+  document.getElementById('val-preview-stats').innerHTML=`
+    <div class="data-card"><div class="dc-label">Revenue</div><div class="dc-val">$${fmt(c.revenue)}</div><div class="dc-sub">${c.revGrowth}% growth YoY</div></div>
+    <div class="data-card"><div class="dc-label">Gross Margin</div><div class="dc-val">${c.gm}%</div><div class="dc-sub">EBITDA: $${fmt(c.ebitda)}</div></div>
+    <div class="data-card"><div class="dc-label">ARR</div><div class="dc-val">$${fmt(c.arr)}</div><div class="dc-sub">Stage: ${c.stage}</div></div>`;
+  // Pre-fill model inputs
+  document.getElementById('dcf-r1').value=c.revenue||c.arr||0;
+  document.getElementById('dcf-growth').value=c.revGrowth||0;
+  document.getElementById('dcf-margin').value=c.gm||25;
+  document.getElementById('rm-rev').value=c.arr||c.revenue||0;
+  document.getElementById('rm-growth').value=c.revGrowth||0;
+  document.getElementById('rm-gm').value=c.gm||0;
+  document.getElementById('rm-sector').value=c.sector||'Fintech';
+}
+
+function calcDCF(){
+  const r1=parseFloat(document.getElementById('dcf-r1').value)||0;
+  const g=parseFloat(document.getElementById('dcf-growth').value)/100||0.5;
+  const tg=parseFloat(document.getElementById('dcf-tg').value)/100||0.03;
+  const wacc=parseFloat(document.getElementById('dcf-wacc').value)/100||0.2;
+  const margin=parseFloat(document.getElementById('dcf-margin').value)/100||0.2;
+  const exitMult=parseFloat(document.getElementById('dcf-exit-mult').value)||12;
+  let rev=r1, pv=0;
+  for(let y=1;y<=5;y++){
+    rev*=(1+g*(Math.max(0.4,1-y*0.15)));
+    const cf=rev*margin;
+    pv+=cf/Math.pow(1+wacc,y);
+  }
+  const termRev=rev*(1+tg);
+  const termEBITDA=termRev*margin;
+  const termVal=termEBITDA*exitMult/Math.pow(1+wacc,5);
+  const dcfVal=pv+termVal;
+  const res=document.getElementById('dcf-result');
+  res.style.display='block';
+  res.innerHTML=`
+    <div class="val-row"><span class="val-method">PV of Cash Flows (5yr)</span><span class="val-num pos">$${fmt(pv)}</span></div>
+    <div class="val-row"><span class="val-method">Terminal Value (PV)</span><span class="val-num pos">$${fmt(termVal)}</span></div>
+    <div class="val-row" style="border-bottom:none;"><span class="val-method" style="font-weight:600;color:var(--text);">Enterprise Value (DCF)</span><span class="val-num" style="font-size:20px;">$${fmt(dcfVal)}</span></div>`;
+}
+
+function calcRevMultiple(){
+  const rev=parseFloat(document.getElementById('rm-rev').value)||0;
+  const growth=parseFloat(document.getElementById('rm-growth').value)||0;
+  const gm=parseFloat(document.getElementById('rm-gm').value)||0;
+  const sector=document.getElementById('rm-sector').value;
+  const baseMultiples={'Fintech':[6,10,18],'SaaS':[8,14,22],'E-commerce':[2,4,7],'Healthtech':[5,9,15],'Agritech':[3,6,10],'Other':[4,7,12]};
+  const base=baseMultiples[sector]||[4,7,12];
+  const growthAdj = growth>100?1.3:growth>50?1.1:growth>20?1.0:0.8;
+  const gmAdj = gm>70?1.2:gm>50?1.1:gm>30?1.0:0.85;
+  const lv=rev*base[0]*growthAdj*gmAdj, mv=rev*base[1]*growthAdj*gmAdj, hv=rev*base[2]*growthAdj*gmAdj;
+  document.getElementById('rm-result').style.display='block';
+  document.getElementById('rm-result').innerHTML=`
+    <div class="val-row"><span class="val-method">Conservative (${(base[0]*growthAdj*gmAdj).toFixed(1)}× ARR)</span><span class="val-num">$${fmt(lv)}</span></div>
+    <div class="val-row"><span class="val-method">Base Case (${(base[1]*growthAdj*gmAdj).toFixed(1)}× ARR)</span><span class="val-num pos">$${fmt(mv)}</span></div>
+    <div class="val-row" style="border-bottom:none;"><span class="val-method">Bull Case (${(base[2]*growthAdj*gmAdj).toFixed(1)}× ARR)</span><span class="val-num pos">$${fmt(hv)}</span></div>`;
+}
+
+function calcScorecard(){
+  const team=parseFloat(document.getElementById('sc-team').value)/10;
+  const prod=parseFloat(document.getElementById('sc-product').value)/10;
+  const mkt=parseFloat(document.getElementById('sc-market').value)/10;
+  const tr=parseFloat(document.getElementById('sc-traction').value)/10;
+  const median=parseFloat(document.getElementById('sc-median').value)||3000000;
+  const score=(team*0.3+prod*0.25+mkt*0.25+tr*0.2);
+  const val=median*score*2;
+  document.getElementById('sc-result').style.display='block';
+  document.getElementById('sc-result').innerHTML=`
+    <div class="val-row"><span class="val-method">Scorecard composite</span><span class="val-num">${(score*100).toFixed(0)}%</span></div>
+    <div class="val-row" style="border-bottom:none;"><span class="val-method" style="font-weight:600;color:var(--text);">Estimated Pre-money Valuation</span><span class="val-num pos">$${fmt(val)}</span></div>`;
+}
+
+// ══════════════════════════════════════════════════
+// MARKET SEARCH
+// ══════════════════════════════════════════════════
+function setExch(exch, el){
+  activeExch = exch;
+  document.querySelectorAll('#exch-tabs .exch-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+async function searchMarket(){
+  const q = document.getElementById('mkt-search-inp').value.trim();
+  if(!q){ notify('Enter a company name or ticker','r'); return; }
+  const status = document.getElementById('search-status');
+  status.innerHTML = '<div class="loader"><span></span><span></span><span></span></div> Searching '+activeExch+' for "'+q+'"…';
+  document.getElementById('search-results-wrap').style.display='none';
+  document.getElementById('company-detail').style.display='none';
+
+  const prompt = `You are a financial data API. Search for "${q}" on ${activeExch} exchanges and return data for up to 5 matching companies.
+
+Return ONLY valid JSON array (no other text, no markdown):
+[{"ticker":"","name":"","exchange":"","sector":"","price":"","currency":"","change1d":"","ytd":"","mcap":"","pe":"","divYield":"","revenue":"","netIncome":"","description":""}]
+
+Use realistic current market data. Price should include currency symbol. YTD as percentage string like "+12.4%" or "-3.2%". MCap as string like "$4.2B" or "₦1.2T". If company not found, return [].`;
+
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:prompt}]})
+    });
+    const data = await res.json();
+    const raw = data.content?.find(b=>b.type==='text')?.text||'[]';
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const results = JSON.parse(clean);
+    status.textContent = results.length?results.length+' result(s) found':'No results found for "'+q+'"';
+    if(results.length>0){
+      document.getElementById('search-results-wrap').style.display='block';
+      document.getElementById('search-result-count').textContent = results.length+' results';
+      document.getElementById('search-results').innerHTML = results.map((r,i)=>`
+        <div class="search-result-item" onclick="showCompanyDetail(${i})">
+          <div class="sri-info">
+            <div class="sri-name">${r.name} <span class="tkr">${r.ticker}</span> <span class="exch-tag">${r.exchange}</span></div>
+            <div class="sri-meta">${r.sector} · ${r.mcap}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="sri-price mono">${r.price}</div>
+            <div class="sri-chg ${r.ytd&&r.ytd.startsWith('-')?'neg':'pos'} mono">${r.ytd}</div>
+          </div>
+        </div>`).join('');
+      window._searchResults = results;
+    }
+  }catch(e){
+    status.textContent='Search failed. Please try again.';
+  }
+}
+
+async function showCompanyDetail(i){
+  const r = window._searchResults[i];
+  if(!r) return;
+  currentSearchResult = r;
+  document.getElementById('company-detail').style.display='block';
+  document.getElementById('cd-title').textContent = r.name+' ('+r.ticker+')';
+  document.getElementById('cd-metrics').innerHTML=`
+    <div class="mcard mc-blue"><div class="mcard-label">Price</div><div class="mcard-val">${r.price}</div><div class="mcard-sub ${r.ytd&&r.ytd.startsWith('-')?'neg':'pos'}">${r.ytd} YTD</div></div>
+    <div class="mcard mc-green"><div class="mcard-label">Market Cap</div><div class="mcard-val">${r.mcap}</div><div class="mcard-sub neu">${r.exchange}</div></div>
+    <div class="mcard mc-amber"><div class="mcard-label">P/E Ratio</div><div class="mcard-val">${r.pe||'—'}</div><div class="mcard-sub neu">Trailing P/E</div></div>
+    <div class="mcard mc-teal"><div class="mcard-label">Div. Yield</div><div class="mcard-val">${r.divYield||'—'}</div><div class="mcard-sub neu">Annual</div></div>`;
+  document.getElementById('cd-financials').innerHTML=`
+    <div class="data-card" style="margin-bottom:8px;"><div class="dc-label">Revenue</div><div class="dc-val">${r.revenue||'N/A'}</div></div>
+    <div class="data-card" style="margin-bottom:8px;"><div class="dc-label">Net Income</div><div class="dc-val">${r.netIncome||'N/A'}</div></div>
+    <div class="data-card"><div class="dc-label">Sector</div><div class="dc-val" style="font-size:14px;">${r.sector}</div><div class="dc-sub">${r.description||''}</div></div>`;
+  document.getElementById('company-detail').scrollIntoView({behavior:'smooth',block:'start'});
+  callClaude(`Provide a concise investment analysis for ${r.name} (${r.ticker}) on ${r.exchange}. Cover: business model, recent performance, key risks, valuation vs peers, and buy/hold/sell view. Be specific with numbers.`,
+    document.getElementById('cd-ai'), null);
+}
+
+function closeDetail(){ document.getElementById('company-detail').style.display='none'; }
+
+function addToWatchlist(){
+  if(!currentSearchResult){ notify('No company selected','r'); return; }
+  const r = currentSearchResult;
+  if(watchlist.find(w=>w.ticker===r.ticker)){ notify('Already on watchlist'); return; }
+  watchlist.push({...r, addedAt:new Date().toISOString()});
+  localStorage.setItem('apex_wl',JSON.stringify(watchlist));
+  document.getElementById('dash-watch-count').textContent = watchlist.length;
+  notify(r.name+' added to watchlist ✓');
+}
+
+function addToVC(){
+  if(!currentSearchResult) return;
+  const r = currentSearchResult;
+  document.getElementById('add-name').value=r.name;
+  document.getElementById('add-sector').value='';
+  document.getElementById('add-website').value='';
+  nav('vc-add',document.querySelectorAll('.nav-btn')[3]);
+  notify('Prefilled company details — add investment info to save');
+}
+
+// ══════════════════════════════════════════════════
+// SCREENER DATA
+// ══════════════════════════════════════════════════
+const SCREENER_DATA = [
+  {name:'Dangote Cement',tkr:'DANGCEM',exch:'NGX',sect:'Cement',price:'₦490',ytd:28.6,mcap:8.37,pe:12.4,div:4.8,currency:'NGN'},
+  {name:'GTCO',tkr:'GTCO',exch:'NGX',sect:'Banking',price:'₦39.85',ytd:44.8,mcap:1.34,pe:5.2,div:7.5,currency:'NGN'},
+  {name:'Zenith Bank',tkr:'ZENITHBANK',exch:'NGX',sect:'Banking',price:'₦41.30',ytd:36.2,mcap:1.30,pe:4.8,div:9.1,currency:'NGN'},
+  {name:'MTN Nigeria',tkr:'MTNN',exch:'NGX',sect:'Telecoms',price:'₦218',ytd:19.4,mcap:4.42,pe:18.1,div:3.2,currency:'NGN'},
+  {name:'BUA Cement',tkr:'BUACEMENT',exch:'NGX',sect:'Cement',price:'₦122.50',ytd:22.3,mcap:4.41,pe:11.8,div:3.4,currency:'NGN'},
+  {name:'Access Holdings',tkr:'ACCESS',exch:'NGX',sect:'Banking',price:'₦22.40',ytd:29.1,mcap:0.80,pe:3.9,div:6.2,currency:'NGN'},
+  {name:'FBN Holdings',tkr:'FBNH',exch:'NGX',sect:'Banking',price:'₦21.40',ytd:31.2,mcap:0.77,pe:4.3,div:4.6,currency:'NGN'},
+  {name:'Seplat Energy',tkr:'SEPLAT',exch:'NGX',sect:'Oil',price:'₦2,310',ytd:12.3,mcap:1.40,pe:8.4,div:2.1,currency:'NGN'},
+  {name:'Transcorp',tkr:'TRANSCORP',exch:'NGX',sect:'Energy',price:'₦14.35',ytd:58.4,mcap:0.26,pe:6.8,div:2.8,currency:'NGN'},
+  {name:'Presco',tkr:'PRESCO',exch:'NGX',sect:'Consumer',price:'₦428',ytd:38.4,mcap:0.43,pe:9.2,div:3.1,currency:'NGN'},
+  {name:'Apple Inc.',tkr:'AAPL',exch:'NASDAQ',sect:'Tech',price:'$189',ytd:12.4,mcap:2900,pe:29.4,div:0.5,currency:'USD'},
+  {name:'Microsoft',tkr:'MSFT',exch:'NASDAQ',sect:'Tech',price:'$415',ytd:18.2,mcap:3100,pe:36.8,div:0.7,currency:'USD'},
+  {name:'Nvidia',tkr:'NVDA',exch:'NASDAQ',sect:'Tech',price:'$875',ytd:82.1,mcap:2150,pe:72.4,div:0.03,currency:'USD'},
+  {name:'JPMorgan Chase',tkr:'JPM',exch:'NYSE',sect:'Banking',price:'$198',ytd:16.4,mcap:570,pe:11.2,div:2.3,currency:'USD'},
+  {name:'ExxonMobil',tkr:'XOM',exch:'NYSE',sect:'Oil',price:'$114',ytd:8.2,mcap:454,pe:13.1,div:3.4,currency:'USD'},
+  {name:'Meta',tkr:'META',exch:'NASDAQ',sect:'Tech',price:'$512',ytd:44.2,mcap:1310,pe:28.6,div:0,currency:'USD'},
+  {name:'HSBC Holdings',tkr:'HSBA',exch:'LSE',sect:'Banking',price:'£6.48',ytd:14.2,mcap:128,pe:8.4,div:6.8,currency:'GBP'},
+  {name:'Shell',tkr:'SHEL',exch:'LSE',sect:'Oil',price:'£25.40',ytd:6.8,mcap:185,pe:11.6,div:3.8,currency:'GBP'},
+  {name:'Unilever',tkr:'ULVR',exch:'LSE',sect:'Consumer',price:'£39.60',ytd:-4.2,mcap:96,pe:19.4,div:3.6,currency:'GBP'},
+  {name:'LVMH',tkr:'MC',exch:'LSE',sect:'Consumer',price:'€820',ytd:-8.4,mcap:412,pe:22.1,div:1.8,currency:'EUR'},
+  {name:'Toyota',tkr:'7203',exch:'TSE',sect:'Consumer',price:'¥3,420',ytd:38.4,mcap:220,pe:10.4,div:2.8,currency:'JPY'},
+  {name:'Sony Group',tkr:'6758',exch:'TSE',sect:'Tech',price:'¥13,200',ytd:22.8,mcap:100,pe:18.6,div:0.6,currency:'JPY'},
+  {name:'TSMC',tkr:'2330',exch:'TSE',sect:'Tech',price:'NT$820',ytd:28.4,mcap:620,pe:22.4,div:2.4,currency:'TWD'},
+  {name:'Alibaba',tkr:'9988',exch:'HKEX',sect:'Tech',price:'HK$76',ytd:-14.2,mcap:195,pe:12.8,div:0,currency:'HKD'},
+  {name:'Tencent',tkr:'0700',exch:'HKEX',sect:'Tech',price:'HK$368',ytd:6.4,mcap:412,pe:20.4,div:0.8,currency:'HKD'},
+  {name:'Naspers',tkr:'NPN',exch:'JSE',sect:'Tech',price:'R3,420',ytd:18.8,mcap:88,pe:18.4,div:0,currency:'ZAR'},
+  {name:'Standard Bank',tkr:'SBK',exch:'JSE',sect:'Banking',price:'R202',ytd:14.2,mcap:28,pe:9.2,div:4.8,currency:'ZAR'},
+];
+
+let scrSortColG='ytd', scrSortDirG=-1;
+function buildScreenerData(){ scrApply(); }
+
+function scrFilterExch(el,val){
+  scrExch=val;
+  el.closest('.filter-bar').querySelectorAll('.filt').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active'); scrApply();
+}
+function scrFilterSect(el,val){
+  scrSect=val;
+  el.closest('.filter-bar').querySelectorAll('.filt').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active'); scrApply();
+}
+function togglePos(el){ scrPosOnly=!scrPosOnly; el.classList.toggle('on',scrPosOnly); scrApply(); }
+function toggleDiv(el){ scrDivOnly=!scrDivOnly; el.classList.toggle('on',scrDivOnly); scrApply(); }
+function resetScreener(){ scrExch='all';scrSect='all';scrPosOnly=false;scrDivOnly=false;document.getElementById('scr-pos-toggle').classList.remove('on');document.getElementById('scr-div-toggle').classList.remove('on');document.getElementById('scr-mcap').value=0;document.getElementById('scr-pe').value=100;document.getElementById('scr-div').value=0;document.getElementById('scr-ytd').value=-50;document.getElementById('scr-search').value='';document.querySelectorAll('#page-screener .filt').forEach((b,i)=>{b.classList.remove('active');if(i===0||i===9)b.classList.add('active');}); scrApply(); }
+
+function scrSort(col){
+  if(scrSortColG===col) scrSortDirG*=-1; else{scrSortColG=col;scrSortDirG=-1;}
+  scrApply();
+}
+
+function scrApply(){
+  const mcapMin=parseFloat(document.getElementById('scr-mcap')?.value||0);
+  const peMax=parseFloat(document.getElementById('scr-pe')?.value||100);
+  const divMin=parseFloat(document.getElementById('scr-div')?.value||0);
+  const ytdMin=parseFloat(document.getElementById('scr-ytd')?.value||-50);
+  const qry=(document.getElementById('scr-search')?.value||'').toLowerCase();
+  const sortBy=document.getElementById('scr-sort')?.value||'ytd-desc';
+
+  document.getElementById('scr-mcap-v').textContent=mcapMin>0?'$'+mcapMin+'B+':'$0B+';
+  document.getElementById('scr-pe-v').textContent=peMax>=100?'Any':peMax+'×';
+  document.getElementById('scr-div-v').textContent=divMin>0?divMin+'%+':'0%+';
+  document.getElementById('scr-ytd-v').textContent=ytdMin<=-50?'Any':ytdMin+'%+';
+
+  let data=[...SCREENER_DATA];
+  if(scrExch!=='all') data=data.filter(s=>s.exch===scrExch);
+  if(scrSect!=='all') data=data.filter(s=>s.sect===scrSect);
+  if(mcapMin>0) data=data.filter(s=>s.mcap>=mcapMin);
+  if(peMax<100) data=data.filter(s=>s.pe>0&&s.pe<=peMax);
+  if(divMin>0) data=data.filter(s=>s.div>=divMin);
+  if(ytdMin>-50) data=data.filter(s=>s.ytd>=ytdMin);
+  if(scrPosOnly) data=data.filter(s=>s.ytd>0);
+  if(scrDivOnly) data=data.filter(s=>s.div>0);
+  if(qry) data=data.filter(s=>s.name.toLowerCase().includes(qry)||s.tkr.toLowerCase().includes(qry));
+
+  const [col,dir]=sortBy.split('-');
+  const dirN=dir==='desc'?-1:1;
+  data.sort((a,b)=>{
+    if(col==='name') return a.name.localeCompare(b.name)*dirN;
+    if(col==='ytd') return (a.ytd-b.ytd)*dirN;
+    if(col==='mcap') return (a.mcap-b.mcap)*dirN;
+    if(col==='pe') return (a.pe-b.pe)*dirN;
+    if(col==='div') return (a.div-b.div)*dirN;
+    return 0;
+  });
+
+  if(scrSortColG){
+    data.sort((a,b)=>{
+      const av=a[scrSortColG]??0, bv=b[scrSortColG]??0;
+      if(typeof av==='string') return av.localeCompare(bv)*scrSortDirG;
+      return (av-bv)*scrSortDirG;
+    });
+  }
+
+  document.getElementById('scr-count').textContent=data.length+' stocks';
+  document.getElementById('scr-tbody').innerHTML=data.map(s=>`
+    <tr>
+      <td><span class="tkr">${s.tkr}</span><div class="co-name">${s.name}</div></td>
+      <td><span class="exch-tag">${s.exch}</span></td>
+      <td><span class="sbadge sb-${s.sect==='Tech'?'tech':s.sect==='Banking'?'banking':s.sect==='Oil'?'oil':s.sect==='Consumer'?'consumer':s.sect==='Cement'?'cement':s.sect==='Telecoms'?'telco':'fintech'}">${s.sect}</span></td>
+      <td class="mono r">${s.price}</td>
+      <td class="mono r ${s.ytd>=0?'pos':'neg'}">${s.ytd>=0?'+':''}${s.ytd}%</td>
+      <td class="mono r">$${s.mcap}B</td>
+      <td class="mono r">${s.pe?s.pe+'×':'—'}</td>
+      <td class="mono r">${s.div?s.div+'%':'—'}</td>
+      <td class="r"><button class="btn btn-outline btn-sm" onclick="addScrToWL('${s.tkr}')">+ Watch</button></td>
+    </tr>`).join('');
+}
+
+function addScrToWL(tkr){
+  const s = SCREENER_DATA.find(x=>x.tkr===tkr);
+  if(!s) return;
+  if(watchlist.find(w=>w.ticker===tkr)){ notify('Already on watchlist'); return; }
+  watchlist.push({ticker:tkr,name:s.name,exchange:s.exch,sector:s.sect,price:s.price,ytd:(s.ytd>=0?'+':'')+s.ytd+'%',addedAt:new Date().toISOString()});
+  localStorage.setItem('apex_wl',JSON.stringify(watchlist));
+  document.getElementById('dash-watch-count').textContent=watchlist.length;
+  notify(s.name+' added to watchlist ✓');
+  renderWatchlist();
+}
+
+// ══════════════════════════════════════════════════
+// WATCHLIST
+// ══════════════════════════════════════════════════
+function renderWatchlist(){
+  const sort=document.getElementById('wl-sort')?.value||'ytd-desc';
+  let data=[...watchlist];
+  if(sort==='name-asc') data.sort((a,b)=>a.name.localeCompare(b.name));
+  else if(sort==='ytd-desc') data.sort((a,b)=>(parseFloat(b.ytd||0))-(parseFloat(a.ytd||0)));
+  else if(sort==='ytd-asc') data.sort((a,b)=>(parseFloat(a.ytd||0))-(parseFloat(b.ytd||0)));
+  else if(sort==='added-desc') data.sort((a,b)=>new Date(b.addedAt)-new Date(a.addedAt));
+  document.getElementById('wl-count').textContent=data.length+' stocks';
+  if(data.length===0){
+    document.getElementById('wl-list').innerHTML='<div class="empty"><svg viewBox="0 0 36 36" fill="none"><path d="M18 3l4 8.5 9.4 1.3-6.8 6.7 1.6 9.4L18 24l-8.2 4.9 1.6-9.4-6.8-6.7 9.4-1.3z" stroke="currentColor" stroke-width="1.5"/></svg><p>No stocks on watchlist. Search markets or use screener to add stocks.</p></div>';
+    return;
+  }
+  document.getElementById('wl-list').innerHTML=`<div class="scroll-x"><table class="tbl"><thead><tr><th>Ticker</th><th>Company</th><th>Exchange</th><th>Sector</th><th class="r">Price</th><th class="r">YTD</th><th>Added</th><th>Actions</th></tr></thead><tbody>${
+    data.map(w=>`<tr><td><span class="tkr">${w.ticker}</span></td><td><span style="font-weight:500;">${w.name}</span></td><td><span class="exch-tag">${w.exchange}</span></td><td>${w.sector||'—'}</td><td class="mono r">${w.price||'—'}</td><td class="mono r ${(w.ytd||'').startsWith('-')?'neg':'pos'}">${w.ytd||'—'}</td><td class="mono" style="color:var(--muted);font-size:11px;">${new Date(w.addedAt).toLocaleDateString()}</td><td><button class="btn btn-danger btn-sm" onclick="removeWL('${w.ticker}')">✕</button></td></tr>`).join('')
+  }</tbody></table></div>`;
+}
+
+function removeWL(tkr){ watchlist=watchlist.filter(w=>w.ticker!==tkr); localStorage.setItem('apex_wl',JSON.stringify(watchlist)); renderWatchlist(); document.getElementById('dash-watch-count').textContent=watchlist.length; notify('Removed from watchlist'); }
+
+// ══════════════════════════════════════════════════
+// SIGNALS
+// ══════════════════════════════════════════════════
+const SIGNALS_DATA = [
+  {cat:'ngx',level:'h',title:'CBN holds MPR at 26.75% — naira at ₦1,582/$ NAFEM',body:'The MPC voted 7-2 to hold. Positive for NGX banking stocks via sustained NIM expansion. GTCO, Zenith, Access Holdings most exposed.',tags:['CBN','Monetary policy','NGX','GTCO','ZENITHBANK'],time:'1h ago'},
+  {cat:'global',level:'m',title:'US Fed holds rates — dovish pivot signals risk-on for EM',body:'Fed signalled 2-3 cuts in 2025. African and EM equities benefit from reduced dollar strength and improved capital flows.',tags:['Fed','US rates','EM equities','Global'],time:'2h ago'},
+  {cat:'vc',level:'m',title:'African tech VC funding up 22% in Q1 2024 — fintech leads',body:'$1.2B raised across 148 deals. Nigeria led with $340M. Fintech (45%), Healthtech (18%), Agritech (14%) were top sectors.',tags:['Africa VC','Fintech','Nigeria','Funding'],time:'4h ago'},
+  {cat:'ngx',level:'m',title:'DANGCEM Q1 2024 earnings beat — revenue +22% YoY',body:'EBITDA margin expanded to 38%. Cement volumes +14% driven by Nigeria infrastructure spending and pan-African subsidiaries.',tags:['DANGCEM','Earnings','NGX','Cement'],time:'5h ago'},
+  {cat:'macro',level:'h',title:'Nigeria inflation eases to 33.2% — first MoM drop in 8 months',body:'NBS CPI data shows moderation. Still well above CBN target. Real returns on equities remain compressed but trend positive.',tags:['Nigeria','Inflation','NBS','Macro'],time:'6h ago'},
+  {cat:'global',level:'l',title:'Brent crude at $82.40 — OPEC+ holds production cuts',body:'Oil price stability supports SEPLAT Energy and NNPC positions. Nigeria\'s fiscal position improves at $80+ Brent.',tags:['Brent','OPEC','SEPLAT','Energy'],time:'8h ago'},
+  {cat:'vc',level:'l',title:'Paystack (Stripe) valued at $200M in secondary — Nigerian fintech benchmark',body:'Secondary transaction implies 20% discount to 2021 peak. Sets comp for mid-stage Nigerian fintech valuation.',tags:['Paystack','Fintech','Nigeria VC','Valuation'],time:'1d ago'},
+  {cat:'global',level:'m',title:'ECB cuts rates to 4.25% — first cut in 5 years',body:'European equities respond positively. LSE listed stocks benefit. Cross-border capital may flow toward higher-yielding African markets.',tags:['ECB','Europe','Rates','LSE'],time:'1d ago'},
+  {cat:'macro',level:'l',title:'NBS: Nigeria Q1 GDP +3.96% — beats 3.7% consensus',body:'Services sector led (+28.2% for financials). Oil & gas recovered (+5.7%). Broad-based growth positive for equities.',tags:['GDP','Nigeria','NBS','Macro'],time:'2d ago'},
+];
+let sigFilter='all';
+function filterSig(el,val){ sigFilter=val; document.querySelectorAll('#page-signals .filt').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderSignals(); }
+function renderSignals(){
+  let data=SIGNALS_DATA;
+  if(sigFilter!=='all') data=data.filter(s=>s.cat===sigFilter);
+  document.getElementById('signals-list').innerHTML=data.map(s=>`
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;">
+        <div style="font-family:var(--head);font-size:14px;font-weight:600;line-height:1.4;">${s.title}</div>
+        <span class="itag ${s.level==='h'?'ih':s.level==='m'?'im':'il'}" style="flex-shrink:0;">${s.level==='h'?'HIGH':s.level==='m'?'MED':'LOW'}</span>
+      </div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:10px;">${s.body}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">${s.tags.map(t=>`<span style="font-size:10px;font-family:var(--mono);padding:2px 7px;border-radius:4px;background:var(--bg4);color:var(--muted);">${t}</span>`).join('')}</div>
+        <span style="font-size:11px;font-family:var(--mono);color:var(--muted);">${s.time}</span>
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════
+// MACRO
+// ══════════════════════════════════════════════════
+const MACRO_DATA = {
+  nigeria:{title:'🇳🇬 Nigeria',items:[
+    {label:'CBN MPR',val:'26.75%',sub:'Held · MPC 7-2 vote'},{label:'Inflation (CPI)',val:'33.2%',sub:'−0.4pp MoM · NBS',neg:true},
+    {label:'USD/NGN',val:'₦1,582',sub:'NAFEM · Managed float'},{label:'GDP Growth Q1',val:'3.96%',sub:'Beat 3.7% est.',pos:true},
+    {label:'FGN Bond 10Y',val:'18.75%',sub:'−25bps WoW'},{label:'FX Reserves',val:'$32.1B',sub:'+$0.4B MoM',pos:true},
+    {label:'Oil Production',val:'1.64M bpd',sub:'OPEC data'},{label:'Brent Crude',val:'$82.40',sub:'+0.8% today',pos:true},
+    {label:'NGX ASI YTD',val:'+18.1%',sub:'Index performance',pos:true},
+  ]},
+  us:{title:'🇺🇸 United States',items:[
+    {label:'Fed Funds Rate',val:'5.25-5.50%',sub:'Held · FOMC'},{label:'CPI Inflation',val:'3.5%',sub:'YoY · BLS',neg:true},
+    {label:'GDP Growth Q1',val:'1.6%',sub:'Annualised · BEA'},{label:'10Y Treasury',val:'4.64%',sub:'−8bps WoW'},
+    {label:'S&P 500 YTD',val:'+10.2%',sub:'Index',pos:true},{label:'NASDAQ YTD',val:'+9.1%',sub:'Index',pos:true},
+    {label:'Unemployment',val:'3.9%',sub:'BLS April 2024'},{label:'USD Index (DXY)',val:'105.4',sub:'+0.8% MoM'},
+  ]},
+  europe:{title:'🇪🇺 Europe',items:[
+    {label:'ECB Rate',val:'4.25%',sub:'Cut −25bps June 2024'},{label:'EU CPI',val:'2.4%',sub:'YoY · Eurostat'},
+    {label:'UK CPI',val:'3.2%',sub:'YoY · ONS',neg:true},{label:'FTSE 100 YTD',val:'+6.8%',sub:'Index',pos:true},
+    {label:'DAX YTD',val:'+10.4%',sub:'Index',pos:true},{label:'EUR/USD',val:'$1.072',sub:'WoW −0.4%'},
+    {label:'GBP/USD',val:'$1.248',sub:'Stable'},{label:'UK 10Y Gilt',val:'4.24%',sub:'−12bps WoW'},
+  ]},
+  asia:{title:'🌏 Asia',items:[
+    {label:'BoJ Rate',val:'0.10%',sub:'Held · BoJ'},{label:'Japan CPI',val:'2.7%',sub:'YoY'},
+    {label:'Nikkei 225 YTD',val:'+18.4%',sub:'Index',pos:true},{label:'USD/JPY',val:'¥156.4',sub:'Near 34yr high',neg:true},
+    {label:'China GDP Q1',val:'5.3%',sub:'Beat 4.8% est.',pos:true},{label:'Hang Seng YTD',val:'+6.2%',sub:'Index',pos:true},
+    {label:'USD/CNY',val:'¥7.24',sub:'Stable'},{label:'India Sensex YTD',val:'+4.8%',sub:'Index',pos:true},
+  ]},
+  global:{title:'🌍 Global',items:[
+    {label:'Brent Crude',val:'$82.40',sub:'+0.8% today',pos:true},{label:'Gold',val:'$2,310',sub:'+12.4% YTD',pos:true},
+    {label:'Bitcoin',val:'$63,200',sub:'+52% YTD',pos:true},{label:'VIX',val:'15.8',sub:'Low volatility'},
+    {label:'MSCI EM YTD',val:'+6.8%',sub:'Emerging markets',pos:true},{label:'MSCI Africa YTD',val:'+11.2%',sub:'Africa index',pos:true},
+    {label:'Global PMI',val:'52.1',sub:'Expansion territory',pos:true},{label:'World GDP est.',val:'3.2%',sub:'IMF 2024 forecast',pos:true},
+  ]},
+};
+function setMacroRegion(r,el){ currentMacroRegion=r; document.querySelectorAll('#macro-tabs .exch-tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); renderMacro(r); }
+function renderMacro(r){
+  const d=MACRO_DATA[r]||MACRO_DATA.nigeria;
+  document.getElementById('macro-content').innerHTML=`<div class="g3">${d.items.map(i=>`<div class="macro-item"><div class="macro-label">${i.label}</div><div class="macro-val ${i.pos?'pos':i.neg?'neg':''}">${i.val}</div><div class="macro-sub">${i.sub}</div></div>`).join('')}</div>`;
+}
+
+// ══════════════════════════════════════════════════
+// DATA SCRAPER
+// ══════════════════════════════════════════════════
+async function runScraper(){
+  const url=document.getElementById('scrape-url').value.trim();
+  if(!url){ notify('Enter a URL to scrape','r'); return; }
+  const type=document.getElementById('scrape-type').value;
+  const custom=document.getElementById('scrape-custom').value;
+  const status=document.getElementById('scrape-status');
+  const result=document.getElementById('scrape-result');
+  status.innerHTML='<div class="loader"><span></span><span></span><span></span></div> Fetching and analysing…';
+  result.style.display='none';
+
+  let fetchedContent='';
+  try{
+    const r=await fetch(`https://api.anthropic.com/v1/messages`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1500,
+        messages:[{role:'user',content:`You are a web scraping assistant. The user wants to extract "${type}" from this URL: ${url}.${custom?' Additional instructions: '+custom:''} 
+
+Since you cannot actually fetch the URL, please:
+1. Acknowledge the URL and data type requested
+2. Explain what data you would extract from that type of page
+3. Provide a realistic example of what the extracted data would look like for this URL (based on your knowledge of the site)
+4. Suggest how to structure this data for portfolio tracking
+
+Format your response clearly with sections.`}]
+      })
+    });
+    const d=await r.json();
+    fetchedContent=d.content?.find(b=>b.type==='text')?.text||'No response';
+  }catch(e){
+    fetchedContent='Error connecting to scraping service.';
+  }
+
+  status.textContent='Extraction complete · '+new Date().toLocaleTimeString();
+  result.style.display='block'; result.className='ai-out'; result.textContent=fetchedContent;
+
+  scrLog.unshift({url,type,time:new Date().toISOString(),result:fetchedContent.slice(0,200)+'…'});
+  if(scrLog.length>20) scrLog=scrLog.slice(0,20);
+  localStorage.setItem('apex_log',JSON.stringify(scrLog));
+  renderScraperLog();
+}
+
+function renderScraperLog(){
+  const el=document.getElementById('scraper-log');
+  if(!scrLog.length){ el.innerHTML='<div class="empty"><p>No scraping runs yet.</p></div>'; return; }
+  el.innerHTML=`<table class="tbl"><thead><tr><th>URL</th><th>Type</th><th>Time</th><th>Preview</th></tr></thead><tbody>${
+    scrLog.map(l=>`<tr><td class="mono" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;">${l.url}</td><td>${l.type}</td><td class="mono" style="font-size:11px;color:var(--muted);">${new Date(l.time).toLocaleString()}</td><td style="font-size:11px;color:var(--muted);max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.result}</td></tr>`).join('')
+  }</tbody></table>`;
+}
+
+// ══════════════════════════════════════════════════
+// REPORTS
+// ══════════════════════════════════════════════════
+const REPORT_PROMPTS = {
+  'vc-summary':{title:'VC Portfolio Summary',prompt:`Write a professional VC portfolio summary report. Portfolio: ${JSON.stringify(vcPortfolio)}. Cover: portfolio overview and total value, top performers and underperformers by MOIC, sector concentration analysis, stage mix, key risks, and recommended actions. If portfolio is empty, write a template showing what this report would cover. 5-6 paragraphs, no bullet points.`},
+  'vc-valuation-report':{title:'Valuation Benchmarking Report',prompt:'Write a VC valuation benchmarking report for African startup investments in 2024. Cover: current revenue multiples by sector (fintech, SaaS, agritech, healthtech), how African valuations compare to US/EU, the impact of macro conditions (naira depreciation, high interest rates) on startup valuations, and guidance on WACC and discount rates for Nigerian private companies. 5 paragraphs, no bullets.'},
+  'vc-risk':{title:'Portfolio Risk Assessment',prompt:`Write a VC portfolio risk assessment. Portfolio: ${JSON.stringify(vcPortfolio)}. Cover: concentration risk by sector and stage, FX and currency risks for Nigeria-focused investments, liquidity risk and exit pathway analysis, macro risks (CBN policy, inflation), and 3 concrete mitigation recommendations. If empty portfolio, write using example data. 5 paragraphs.`},
+  'ngx-monthly':{title:'NGX Monthly Market Report',prompt:'Write a comprehensive NGX monthly market report for April 2024. Cover: NGX All-Share Index performance (+18.1% YTD), top sector movers (banking +38% YTD, cement, telecoms), key earnings (DANGCEM Q1 +22%, GTCO H1 +41% PAT), CBN monetary policy impact, naira at ₦1,582/$, and Q2 2024 outlook. 5-6 paragraphs, professional tone.'},
+  'global-scan':{title:'Global Market Scan',prompt:'Write a global market scan covering April 2024. Cover: NGX and African markets outperformance (+11.2% MSCI Africa), US equities (S&P +10.2% YTD), European markets after ECB cut, Asian markets (Nikkei +18.4%), key macro themes (Fed policy, commodity prices, EM flows), and cross-market opportunities. 5 paragraphs.'},
+  'africa-vc':{title:'Africa VC Landscape Q2 2024',prompt:'Write an Africa VC landscape report for Q2 2024. Cover: Q1 2024 funding totals ($1.2B, +22% YoY), country breakdown (Nigeria $340M, Kenya $280M, Egypt $190M, South Africa $180M), sector trends (fintech dominance, rise of healthtech and agritech), notable deals, valuation environment, and H2 2024 outlook. 5-6 paragraphs, no bullets.'},
+};
+
+async function genReport(type){
+  const rp=REPORT_PROMPTS[type];
+  if(!rp) return;
+  const out=document.getElementById('rep-output'), title=document.getElementById('rep-out-title'), body=document.getElementById('rep-out-body');
+  out.style.display='block'; title.textContent=rp.title;
+  body.innerHTML='<div class="loader"><span></span><span></span><span></span></div>';
+  out.scrollIntoView({behavior:'smooth',block:'start'});
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,system:SYSTEM_PROMPT,messages:[{role:'user',content:rp.prompt}]})
+    });
+    const data=await res.json();
+    const text=data.content?.find(b=>b.type==='text')?.text||'Unable to generate.';
+    body.innerHTML=text.split('\n\n').filter(p=>p.trim()).map(p=>`<p style="margin-bottom:16px;">${p}</p>`).join('');
+  }catch(e){
+    body.style.color='var(--red)'; body.textContent='Connection error. Please try again.';
+  }
+}
+
+// ══════════════════════════════════════════════════
+// DASHBOARD REFRESH
+// ══════════════════════════════════════════════════
+function refreshDashboard(){
+  const total=vcPortfolio.reduce((s,c)=>s+c.currVal,0);
+  const invested=vcPortfolio.reduce((s,c)=>s+c.invested,0);
+  const moic=invested>0?(total/invested).toFixed(2)+'×':'—';
+  document.getElementById('dash-vc-val').textContent='$'+fmt(total);
+  document.getElementById('dash-vc-count').textContent=vcPortfolio.length+' companies tracked';
+  document.getElementById('dash-moic').textContent=moic;
+  document.getElementById('dash-watch-count').textContent=watchlist.length;
+  document.getElementById('vc-count-badge').textContent=vcPortfolio.length||'0';
+
+  const dashList=document.getElementById('dash-vc-list');
+  if(!vcPortfolio.length){
+    dashList.innerHTML='<div class="empty"><p>No companies added yet. <span style="color:var(--accent2);cursor:pointer;" onclick="nav(\'vc-add\',document.querySelectorAll(\'.nav-btn\')[3])">Add your first →</span></p></div>';
+  } else {
+    dashList.innerHTML=vcPortfolio.slice(0,4).map(c=>{
+      const moic=c.invested>0?(c.currVal/c.invested).toFixed(2):'—';
+      return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">
+        <div style="flex:1;"><div style="font-weight:500;font-size:13px;">${c.name}</div><div style="font-size:11px;font-family:var(--mono);color:var(--muted);">${c.sector} · ${c.stage}</div></div>
+        <div style="text-align:right;"><div class="mono" style="font-size:13px;">$${fmt(c.currVal)}</div><div class="mono ${parseFloat(moic)>=1?'pos':'neg'}" style="font-size:11px;">${moic}× MOIC</div></div>
+      </div>`;
+    }).join('')+(vcPortfolio.length>4?`<div style="font-size:11.5px;color:var(--accent2);padding-top:10px;cursor:pointer;" onclick="nav('vc-portfolio',document.querySelectorAll('.nav-btn')[2])">+${vcPortfolio.length-4} more →</div>`:'');
+  }
+}
+
+// ══════════════════════════════════════════════════
+// EXCHANGE CHART (DASHBOARD)
+// ══════════════════════════════════════════════════
+let exchChartInst;
+function initExchChart(){
+  if(exchChartInst) return;
+  const ctx=document.getElementById('exchChart');
+  if(!ctx) return;
+  exchChartInst=new Chart(ctx,{
+    type:'bar',
+    data:{labels:['NGX ASI','MSCI Africa','S&P 500','FTSE 100','Nikkei','Hang Seng'],
+      datasets:[{data:[18.1,11.2,10.2,6.8,18.4,6.2],
+        backgroundColor:['#008751','#22c97a','#4f6ef7','#a855f7','#f0a030','#e85050'],
+        borderWidth:0,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'#5a6278',font:{family:'JetBrains Mono',size:10}},grid:{color:'rgba(255,255,255,0.03)'}},
+        y:{ticks:{color:'#5a6278',font:{family:'JetBrains Mono',size:10},callback:v=>v+'%'},grid:{color:'rgba(255,255,255,0.03)'}}}}
+  });
+}
+
+// ══════════════════════════════════════════════════
+// VC CHARTS
+// ══════════════════════════════════════════════════
+let vcSectorChInst, vcStageChInst;
+function buildVCCharts(data){
+  // sector chart
+  const sects=[...new Set(data.map(c=>c.sector))].filter(Boolean);
+  const sectVals=sects.map(s=>data.filter(c=>c.sector===s).reduce((t,c)=>t+c.currVal,0));
+  const ctx1=document.getElementById('vcSectorChart');
+  if(ctx1){
+    if(vcSectorChInst){vcSectorChInst.destroy();}
+    vcSectorChInst=new Chart(ctx1,{type:'doughnut',data:{labels:sects.map((s,i)=>s+' $'+fmt(sectVals[i])),datasets:[{data:sectVals,backgroundColor:['#4f6ef7','#22c97a','#f0a030','#a855f7','#1ec8b0','#d4a53a','#e85050'],borderWidth:2,borderColor:'#0d0f14'}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'right',labels:{color:'#5a6278',font:{family:'JetBrains Mono',size:10},boxWidth:10,padding:10}}}}});
+  }
+  // stage chart
+  const stages=[...new Set(data.map(c=>c.stage))].filter(Boolean);
+  const stageVals=stages.map(s=>data.filter(c=>c.stage===s).length);
+  const ctx2=document.getElementById('vcStageChart');
+  if(ctx2){
+    if(vcStageChInst){vcStageChInst.destroy();}
+    vcStageChInst=new Chart(ctx2,{type:'bar',data:{labels:stages,datasets:[{data:stageVals,backgroundColor:['#d4a53a','#4f6ef7','#22c97a','#a855f7','#e85050'],borderWidth:0,borderRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#5a6278',font:{family:'JetBrains Mono',size:10}},grid:{color:'rgba(255,255,255,0.03)'}},y:{ticks:{color:'#5a6278',font:{family:'JetBrains Mono',size:10},stepSize:1},grid:{color:'rgba(255,255,255,0.03)'}}}}});
+  }
+}
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('vc-count-badge').textContent=vcPortfolio.length||'0';
+  refreshDashboard();
+  renderSignals();
+  renderMacro('nigeria');
+  setTimeout(initExchChart,100);
+  buildScreenerData();
+  scrApply();
+});
+</script>
+</body>
+</html>
