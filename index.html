@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Login</title>
+    <script>
+        const storedHash = 'sha256$hashed_password_here'; // Replace with actual hashed password
+        function validateLogin() {
+            const passwordInput = document.getElementById('password').value;
+            const hashedInput = sha256(passwordInput);
+
+            if (hashedInput === storedHash) {
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+            } else {
+                alert('Incorrect password!');
+            }
+        }
+
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return 'sha256$' + hashArray.map(b => ('00' + b.toString(16)).slice(-2)).join('');
+        }
+    </script>
+</head>
+<body>
+    <div id="login-form">
+        <h2>Login to Dashboard</h2>
+        <input type="password" id="password" placeholder="Enter Password"><br>
+        <button onclick="validateLogin()">Login</button>
+    </div>
+    <div id="dashboard" style="display:none;">
+        <h2>Dashboard</h2>
+        <iframe src="apex-intelligence.html" width="100%" height="500px"></iframe>
+    </div>
+</body>
+</html>
