@@ -3,38 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Login</title>
-    <script>
-        const storedHash = 'sha256$hashed_password_here'; // Replace with actual hashed password
-        function validateLogin() {
-            const passwordInput = document.getElementById('password').value;
-            const hashedInput = sha256(passwordInput);
-
-            if (hashedInput === storedHash) {
-                document.getElementById('login-form').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
-            } else {
-                alert('Incorrect password!');
-            }
+    <title>Apex Intelligence - Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #08090c, #12151d);
+            color: white;
+            margin: 0;
         }
-
-        async function sha256(message) {
-            const msgBuffer = new TextEncoder().encode(message);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return 'sha256$' + hashArray.map(b => ('00' + b.toString(16)).slice(-2)).join('');
+        .container {
+            background: rgba(13, 15, 20, 0.95);
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
         }
-    </script>
+        h1 { margin-bottom: 10px; }
+        p { color: #999; margin-bottom: 30px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background: rgba(18, 21, 29, 0.8);
+            color: white;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #4f6ef7, #7b93ff);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: linear-gradient(135deg, #3d5ae0, #6a82ff);
+        }
+        .error { color: #f87171; display: none; }
+    </style>
 </head>
 <body>
-    <div id="login-form">
-        <h2>Login to Dashboard</h2>
-        <input type="password" id="password" placeholder="Enter Password"><br>
-        <button onclick="validateLogin()">Login</button>
+    <div class="container">
+        <h1>📊 Apex Intelligence</h1>
+        <p>VC & Markets Platform</p>
+        
+        <div id="loginDiv">
+            <div class="error" id="error"></div>
+            <input type="password" id="pwd" placeholder="Enter password" onkeypress="if(event.key==='Enter') login()">
+            <button onclick="login()">Unlock Dashboard →</button>
+        </div>
+        
+        <div id="dashDiv" style="display:none;">
+            <iframe src="apex-intelligence.html" style="width:100vw; height:100vh; border:none;"></iframe>
+        </div>
     </div>
-    <div id="dashboard" style="display:none;">
-        <h2>Dashboard</h2>
-        <iframe src="apex-intelligence.html" width="100%" height="500px"></iframe>
-    </div>
+
+    <script>
+        function login() {
+            const pwd = document.getElementById('pwd').value;
+            if (pwd === 'apex2024') {
+                document.getElementById('loginDiv').style.display = 'none';
+                document.getElementById('dashDiv').style.display = 'block';
+                sessionStorage.setItem('auth', 'true');
+            } else {
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = '❌ Incorrect password';
+                document.getElementById('pwd').value = '';
+            }
+        }
+        
+        if (sessionStorage.getItem('auth') === 'true') {
+            document.getElementById('loginDiv').style.display = 'none';
+            document.getElementById('dashDiv').style.display = 'block';
+        }
+    </script>
 </body>
 </html>
